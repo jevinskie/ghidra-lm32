@@ -44,11 +44,11 @@ attach variables [ reg0 reg1 reg2 ] [
 	gp fp sp ra ea ba
 ];
 
-Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
+Rel16: reloc is simm16 [ reloc=inst_start+4*simm16; ] {
 	export *:4 reloc;
 }
 
-Abs26: reloc is simm26 [ reloc=((inst_start+4) $and 0xfffffffff0000000) | 4*simm26; ] {
+Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 	export *:4 reloc;
 }
 
@@ -64,61 +64,53 @@ Abs26: reloc is simm26 [ reloc=((inst_start+4) $and 0xfffffffff0000000) | 4*simm
 	reg0 = ~(reg1 | imm16);
 }
 
-:muli reg0, reg1, imm16 is op=0x02 & reg0 & reg1 & imm16 {
-	reg0 = reg1 * imm16;
+:muli reg0, reg1, simm16 is op=0x02 & reg0 & reg1 & simm16 {
+	reg0 = reg1 * simm16;
 }
 
-# :sh reg0, reg1, imm16 is op=0x03 {
-#:sh reg0, reg1, imm16 is op=0x03 {
-#	# address = gpr[rX] + sign_extend(imm16)
-#	# memory[address] = (gpr[rY] >> 8) & 0xff
-#	# memory[address+1] = gpr[rY] & 0xff
-#	address = reg0 + sext(imm16)
-#	*[ram]:4 reg0 + sext(imm16) = reg1
-#}
-
-:sh reg0, reg1 is op=0x03 & reg0 & reg1 {
-	*[ram]:2 reg1 = reg0;
+:sh reg0, reg1, simm16 is op=0x03 & reg0 & reg1 & simm16 {
+	local address = reg1 + simm16;
+	*[ram]:2 address = reg0;
 }
 
-#:sw rn, "("^rm^")" is op0003=0xA & op1215=0 & rn & rm {
-#	*[ram]:4 rm = rn;
-#}
-
-:lb is op=0x04 {
-
+:lb reg0, reg1, simm16 is op=0x04 & reg0 & reg1 & simm16 {
+	local address = reg1 + simm16;
+	reg0 = sext(*[ram]:1 address);
 }
 
 :sri reg0, reg1, imm16 is op=0x05 & reg0 & reg1 ; imm16 {
-	reg0 = reg1 >> imm16;
+	reg0 = reg1 s>> imm16;
 }
 
-:xori is op=0x06 {
-
+:xori reg0, reg1, imm16 is op=0x06 & reg0 & reg1 & imm16 {
+	reg0 = reg1 ^ imm16;
 }
 
-:lh is op=0x07 {
-
+:lh reg0, reg1, simm16 is op=0x07 & reg0 & reg1 & simm16 {
+	local address = reg1 + simm16;
+	reg0 = sext(*[ram]:2 address);
 }
 
-:andi is op=0x08 {
-
+:andi reg0, reg1, imm16 is op=0x08 & reg0 & reg1 & imm16 {
+	reg0 = reg1 & imm16;
 }
 
-:xnori is op=0x09 {
-
+:xnori reg0, reg1, imm16 is op=0x09 & reg0 & reg1 & imm16 {
+	reg0 = ~(reg1 ^ imm16);
 }
 
-:lw is op=0x0A {
-
+:lw reg0, reg1, simm16 is op=0x0A & reg0 & reg1 & simm16 {
+	local address = reg1 + simm16;
+	reg0 = *[ram]:4 address;
 }
 
-:lhu is op=0x0B {
-
+:lhu reg0, reg1, simm16 is op=0x0B & reg0 & reg1 & simm16 {
+	local address = reg1 + simm16;
+	reg0 = zext(*[ram]:2 address);
 }
 
-:sb is op=0x0C {
-
+:sb reg0, reg1 is op=0x0c & reg0 & reg1 {
+	*[ram]:1 reg1 = reg0;
 }
 
 :addi reg0, reg1, simm16 is op=0x0D & reg0 & reg1 & simm16 {
@@ -133,28 +125,29 @@ Abs26: reloc is simm26 [ reloc=((inst_start+4) $and 0xfffffffff0000000) | 4*simm
 
 }
 
-:lbu is op=0x10 {
-
+:lbu reg0, reg1, simm16 is op=0x10 & reg0 & reg1 & simm16 {
+	local address = reg1 + simm16;
+	reg0 = zext(*[ram]:1 address);
 }
 
-:be is op=0x11 {
-
+:be reg0, reg1 Rel16 is op=0x11 & reg0 & reg1 & Rel16 {
+	if (reg0 == reg1) goto Rel16;
 }
 
-:bg is op=0x12 {
-
+:bg reg0, reg1 Rel16 is op=0x12 & reg0 & reg1 & Rel16 {
+	if (reg0 s> reg1) goto Rel16;
 }
 
-:bge is op=0x13 {
-
+:bge reg0, reg1 Rel16 is op=0x13 & reg0 & reg1 & Rel16 {
+	if (reg0 s>= reg1) goto Rel16;
 }
 
-:bgeu is op=0x14 {
-
+:bgeu reg0, reg1 Rel16 is op=0x14 & reg0 & reg1 & Rel16 {
+	if (reg0 >= reg1) goto Rel16;
 }
 
-:bgu is op=0x15 {
-
+:bgu reg0, reg1 Rel16 is op=0x15 & reg0 & reg1 & Rel16 {
+	if (reg0 > reg1) goto Rel16;
 }
 
 :sw reg0, reg1, simm16 is op=0x16 & reg0 & reg1 & simm16 {
@@ -162,13 +155,14 @@ Abs26: reloc is simm26 [ reloc=((inst_start+4) $and 0xfffffffff0000000) | 4*simm
 	*[ram]:4 address = reg1;
 }
 
-:bne is op=0x17 {
-
+:bne reg0, reg1 Rel16 is op=0x17 & reg0 & reg1 & Rel16 {
+	if (reg0 != reg1) goto Rel16;
 }
 
-:andhi is op=0x18 {
-
+:andhi reg0, reg1, imm16 is op=0x18 & reg0 & reg1 & imm16 {
+	reg0 = reg1 & (imm16 << 16);
 }
+
 
 :cmpei is op=0x19 {
 
@@ -198,12 +192,12 @@ Abs26: reloc is simm26 [ reloc=((inst_start+4) $and 0xfffffffff0000000) | 4*simm
 
 }
 
-:sru is op=0x20 {
-
+:sr reg0, reg1, reg2 is op=0x20 & reg0 & reg1 & reg2 {
+	reg0 = reg1 >> reg2;
 }
 
-:nor is op=0x21 {
-
+:nor reg0, reg1, reg2 is op=0x21 & reg0 & reg1 & reg2 {
+	reg0 = ~(reg1 | reg2);
 }
 
 :mul is op=0x22 {
@@ -218,24 +212,24 @@ Abs26: reloc is simm26 [ reloc=((inst_start+4) $and 0xfffffffff0000000) | 4*simm
 
 }
 
-:sr is op=0x25 {
-
+:sr reg0, reg1, reg2 is op=0x25 & reg0 & reg1 & reg2 {
+	reg0 = reg1 s>> reg2;
 }
 
-:xor is op=0x26 {
-
+:xor reg0, reg1, reg2 is op=0x26 & reg0 & reg1 & reg2 {
+	reg0 = reg1 ^ reg2;
 }
 
 :div is op=0x27 {
 
 }
 
-:and is op=0x28 {
-
+:and reg0, reg1, reg2 is op=0x28 & reg0 & reg1 & reg2 {
+	reg0 = reg1 & reg2;
 }
 
-:xnor is op=0x29 {
-
+:xnor reg0, reg1, reg2 is op=0x29 & reg0 & reg1 & reg2 {
+	reg0 = ~(reg1 ^ reg2);
 }
 
 # 0x2A is reserved
@@ -244,8 +238,8 @@ Abs26: reloc is simm26 [ reloc=((inst_start+4) $and 0xfffffffff0000000) | 4*simm
 
 }
 
-:sextb is op=0x2C {
-
+:sextb reg0, reg1 is op=0x2C & reg0 & reg1 {
+	reg0 = sext(reg1 & 0xff);
 }
 
 :add reg0, reg1, reg2 is op=0x2D & reg0 & reg1 & reg2 {
@@ -256,8 +250,8 @@ Abs26: reloc is simm26 [ reloc=((inst_start+4) $and 0xfffffffff0000000) | 4*simm
 	reg0 = reg1 | reg2;
 }
 
-:sl is op=0x2F {
-
+:sl reg0, reg1, reg2 is op=0x2F & reg0 & reg1 & reg2 {
+	reg0 = reg1 << reg2;
 }
 
 :b reg0 is op=0x30 & reg0 {
@@ -282,8 +276,8 @@ Abs26: reloc is simm26 [ reloc=((inst_start+4) $and 0xfffffffff0000000) | 4*simm
 
 }
 
-:call is op=0x36 {
-
+:call reg0 is op=0x36 & reg0 {
+	call reg0;
 }
 
 :sexth is op=0x37 {
@@ -314,8 +308,8 @@ Abs26: reloc is simm26 [ reloc=((inst_start+4) $and 0xfffffffff0000000) | 4*simm
 
 }
 
-:calli is op=0x3E {
-
+:calli Rel26 is op=0x3E & Rel26 {
+	call Rel26;
 }
 
 :cmpne is op=0x3F {
