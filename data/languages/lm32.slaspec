@@ -32,28 +32,31 @@ define token opfields(32)
 	reg1 = (16, 20)
 	reg2 = (11, 15)
 	imm16 = (0, 15)
-	imm25 = (0, 25)
+	simm16 = (0, 15) signed
+	imm26 = (0, 25)
+	simm26 = (0, 25) signed
 	imm5 = (0, 4)
+	simm5 = (0, 4) signed
 ;
 
-#attach variables [ reg0 reg1 reg2 ] [
-#	r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25
-#	gp fp sp ra ea ba
-#];
+attach variables [ reg0 reg1 reg2 ] [
+	r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25
+	gp fp sp ra ea ba
+];
 
 #
 # Instructions
 #
 
-:srui reg0:32, reg1:32, imm5 is op=0x00 & reg0 & reg1 ; imm5 {
-	reg0 = reg1 >> (imm5 & 0x1f);
+:srui reg0, reg1, imm5 is op=0x00 & reg0 & reg1 & imm5 {
+	reg0 = reg1 >> imm5;
 }
 
-:nori reg0:32, reg1:32, imm16 is op=0x01 & reg0 & reg1 ; imm16 {
+:nori reg0, reg1, imm16 is op=0x01 & reg0 & reg1 & imm16 {
 	reg0 = ~(reg1 | imm16);
 }
 
-:muli reg0:32, reg1:32, imm16 is op=0x02 & reg0 & reg1 ; imm16 {
+:muli reg0, reg1, imm16 is op=0x02 & reg0 & reg1 & imm16 {
 	reg0 = reg1 * imm16;
 }
 
@@ -66,7 +69,7 @@ define token opfields(32)
 #	*[ram]:4 reg0 + sext(imm16) = reg1
 #}
 
-:sh reg0, "("^reg1^")" is op=0x03 & reg0 & reg1 {
+:sh reg0, reg1 is op=0x03 & reg0 & reg1 {
 	*[ram]:2 reg1 = reg0;
 }
 
@@ -110,11 +113,12 @@ define token opfields(32)
 
 }
 
-:addi op=0x0D {
+:addi reg0, reg1, simm16 is op=0x0D & reg0 & reg1 & simm16 {
+	reg0 = reg1 + simm16;
 }
 
-:ori is op=0x0E {
-
+:ori reg0, reg1, imm16 is op=0x0E & reg0 & reg1 & imm16 {
+	reg0 = reg1 | imm16;
 }
 
 :sli is op=0x0F {
@@ -145,8 +149,9 @@ define token opfields(32)
 
 }
 
-:sw is op=0x16 {
-
+:sw reg0, reg1, simm16 is op=0x16 & reg0 & reg1 & simm16 {
+	local address = reg0 + simm16;
+	*[ram]:4 address = reg1;
 }
 
 :bne is op=0x17 {
@@ -177,8 +182,8 @@ define token opfields(32)
 
 }
 
-:orhi is op=0x1E {
-
+:orhi reg0, reg1, imm16 is op=0x1E & reg0 & reg1 & imm16 {
+	reg0 = reg1 | (imm16 << 16);
 }
 
 :cmpnei is op=0x1F {
@@ -239,8 +244,8 @@ define token opfields(32)
 
 }
 
-:or is op=0x2E {
-
+:or reg0, reg1, reg2 is op=0x2E & reg0 & reg1 & reg2 {
+	reg0 = reg1 | reg2;
 }
 
 :sl is op=0x2F {
