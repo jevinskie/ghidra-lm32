@@ -44,6 +44,14 @@ attach variables [ reg0 reg1 reg2 ] [
 	gp fp sp ra ea ba
 ];
 
+Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
+	export *:4 reloc;
+}
+
+Abs26: reloc is simm26 [ reloc=((inst_start+4) $and 0xfffffffff0000000) | 4*simm26; ] {
+	export *:4 reloc;
+}
+
 #
 # Instructions
 #
@@ -240,8 +248,8 @@ attach variables [ reg0 reg1 reg2 ] [
 
 }
 
-:add is op=0x2D {
-
+:add reg0, reg1, reg2 is op=0x2D & reg0 & reg1 & reg2 {
+	reg0 = reg1 + reg2;
 }
 
 :or reg0, reg1, reg2 is op=0x2E & reg0 & reg1 & reg2 {
@@ -252,16 +260,16 @@ attach variables [ reg0 reg1 reg2 ] [
 
 }
 
-:b is op=0x30 {
-
+:b reg0 is op=0x30 & reg0 {
+	goto reg0;
 }
 
 :modu is op=0x31 {
 
 }
 
-:sub is op=0x32 {
-
+:sub reg0, reg1, reg2 is op=0x32 & reg0 & reg1 & reg2 {
+	reg0 = reg1 - reg2;
 }
 
 # 0x33 is reserved
@@ -282,8 +290,8 @@ attach variables [ reg0 reg1 reg2 ] [
 
 }
 
-:bi is op=0x38 {
-
+:bi Rel26 is op=0x38 & Rel26 {
+	goto Rel26;
 }
 
 :cmpe is op=0x39 {
