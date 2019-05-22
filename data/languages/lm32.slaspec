@@ -65,7 +65,7 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 }
 
 :muli reg0, reg1, simm16 is op=0x02 & reg0 & reg1 & simm16 {
-	reg0 = reg1 * simm16;
+	reg0 = ((reg1 * simm16) & 0xFFFFFFFF);
 }
 
 :sh reg0, reg1, simm16 is op=0x03 & reg0 & reg1 & simm16 {
@@ -78,8 +78,8 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 	reg0 = sext(*[ram]:1 address);
 }
 
-:sri reg0, reg1, imm16 is op=0x05 & reg0 & reg1 ; imm16 {
-	reg0 = reg1 s>> imm16;
+:sri reg0, reg1, imm5 is op=0x05 & reg0 & reg1 & imm5 {
+	reg0 = reg1 s>> imm5;
 }
 
 :xori reg0, reg1, imm16 is op=0x06 & reg0 & reg1 & imm16 {
@@ -121,8 +121,8 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 	reg0 = reg1 | imm16;
 }
 
-:sli is op=0x0F {
-
+:sli reg0, reg1, imm5 is op=0x0F & reg0 & reg1 & imm5 {
+	reg0 = reg1 << imm5;
 }
 
 :lbu reg0, reg1, simm16 is op=0x10 & reg0 & reg1 & simm16 {
@@ -192,7 +192,7 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 
 }
 
-:sr reg0, reg1, reg2 is op=0x20 & reg0 & reg1 & reg2 {
+:sru reg0, reg1, reg2 is op=0x20 & reg0 & reg1 & reg2 {
 	reg0 = reg1 >> reg2;
 }
 
@@ -200,12 +200,12 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 	reg0 = ~(reg1 | reg2);
 }
 
-:mul is op=0x22 {
-
+:mul reg0, reg1, reg2 is op=0x22 & reg0 & reg1 & reg2 {
+	reg0 = (reg1 * reg2) & 0xFFFFFFFF;
 }
 
-:divu is op=0x23 {
-
+:divu reg0, reg1, reg2 is op=0x23 & reg0 & reg1 & reg2 {
+	reg0 = reg1 / reg2;
 }
 
 :rcsr is op=0x24 {
@@ -220,8 +220,8 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 	reg0 = reg1 ^ reg2;
 }
 
-:div is op=0x27 {
-
+:div reg0, reg1, reg2 is op=0x27 & reg0 & reg1 & reg2 {
+	reg0 = reg1 s/ reg2;
 }
 
 :and reg0, reg1, reg2 is op=0x28 & reg0 & reg1 & reg2 {
@@ -239,7 +239,7 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 }
 
 :sextb reg0, reg1 is op=0x2C & reg0 & reg1 {
-	reg0 = sext(reg1 & 0xff);
+	reg0 = (reg1 << 24) s>> 24;
 }
 
 :add reg0, reg1, reg2 is op=0x2D & reg0 & reg1 & reg2 {
@@ -258,8 +258,8 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 	goto reg0;
 }
 
-:modu is op=0x31 {
-
+:modu reg0, reg1, reg2 is op=0x31 & reg0 & reg1 & reg2 {
+	reg0 = reg1 % reg2;
 }
 
 :sub reg0, reg1, reg2 is op=0x32 & reg0 & reg1 & reg2 {
@@ -272,16 +272,16 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 
 }
 
-:mod is op=0x35 {
-
+:mod reg0, reg1, reg2 is op=0x35 & reg0 & reg1 & reg2 {
+	reg0 = reg1 s% reg2;
 }
 
 :call reg0 is op=0x36 & reg0 {
 	call reg0;
 }
 
-:sexth is op=0x37 {
-
+:sexth reg0, reg1 is op=0x37 & reg0 & reg1 {
+	reg0 = (reg1 & 0xffff) s>> 16;
 }
 
 :bi Rel26 is op=0x38 & Rel26 {
