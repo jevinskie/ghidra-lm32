@@ -1,0 +1,302 @@
+# sleigh specification file for LM32
+
+define endian=big;
+define alignment=4;
+
+define space ram type=ram_space size=4 default;
+define space register type=register_space size=4;
+
+# General Purpose Registers
+define register offset=0x1000 size=4 [
+	r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25
+	gp fp sp ra ea ba
+];
+
+# Control and Status Registers
+define register offset=0x2000 size=4 [
+	PC IE IM IP ICC DCC CC CFG EBA CFG2
+];
+
+# Debug Control and Status Registers
+define register offset=0x3000 size=4 [
+	DC DEBA JTX JRX BP0 BP1 BP2 BP3 WP0 WP1 WP2 WP3
+];
+
+#
+# Tokens
+#
+
+define token opfields(32)
+	op = (30, 26)
+	reg0 = (25, 21)
+	reg1 = (20, 16)
+	reg2 = (15, 11)
+	imm16 = (15, 0)
+	imm25 = (25, 0)
+	imm5 = (4, 0)
+;
+
+#
+# Instructions
+#
+
+:srui reg0, reg1, imm5 is op=0x00 & reg0 & reg1 & imm5 {
+	reg0 = reg1 >> imm5
+}
+
+:nori reg0, reg1, imm16 is op=0x01 {
+	reg0 = ~(reg1 | zext(imm16))
+}
+
+:muli reg0, reg1, imm16 is op=0x02 {
+	reg0 = reg1 * sext(imm16)
+}
+
+# :sh reg0, reg1, imm16 is op=0x03 {
+:sh reg0, reg1, imm16 is op=0x03 {
+	# address = gpr[rX] + sign_extend(imm16)
+	# memory[address] = (gpr[rY] >> 8) & 0xff
+	# memory[address+1] = gpr[rY] & 0xff
+	address = reg0 + sext(imm16)
+	*[ram]:2 address = reg1;
+}
+
+#:sw rn, "("^rm^")" is op0003=0xA & op1215=0 & rn & rm {
+#	*[ram]:4 rm = rn;
+#}
+
+:lb is op=0x04 {
+
+}
+
+:sri reg0, reg1, imm16 is op=0x05 {
+	reg0 = reg1 >> imm16
+}
+
+:xori is op=0x06 {
+
+}
+
+:lh is op=0x07 {
+
+}
+
+:andi is op=0x08 {
+
+}
+
+:xnori is op=0x09 {
+
+}
+
+:lw is op=0x0A {
+
+}
+
+:lhu is op=0x0B {
+
+}
+
+:sb is op=0x0C {
+
+}
+
+:addi is op=0x0D {
+
+}
+
+:ori is op=0x0E {
+
+}
+
+:sli is op=0x0F {
+
+}
+
+:lbu is op=0x10 {
+
+}
+
+:be is op=0x11 {
+
+}
+
+:bg is op=0x12 {
+
+}
+
+:bge is op=0x13 {
+
+}
+
+:bgeu is op=0x14 {
+
+}
+
+:bgu is op=0x15 {
+
+}
+
+:sw is op=0x16 {
+
+}
+
+:bne is op=0x17 {
+
+}
+
+:andhi is op=0x18 {
+
+}
+
+:cmpei is op=0x19 {
+
+}
+
+:cmpgi is op=0x1A {
+
+}
+
+:cmpgei is op=0x1B {
+
+}
+
+:cmpgeui is op=0x1C {
+
+}
+
+:cmpgui is op=0x1D {
+
+}
+
+:orhi is op=0x1E {
+
+}
+
+:cmpnei is op=0x1F {
+
+}
+
+:sru is op=0x20 {
+
+}
+
+:nor is op=0x21 {
+
+}
+
+:mul is op=0x22 {
+
+}
+
+:divu is op=0x23 {
+
+}
+
+:rcsr is op=0x24 {
+
+}
+
+:sr is op=0x25 {
+
+}
+
+:xor is op=0x26 {
+
+}
+
+:div is op=0x27 {
+
+}
+
+:and is op=0x28 {
+
+}
+
+:xnor is op=0x29 {
+
+}
+
+# 0x2A is reserved
+
+:raise is op=0x2B {
+
+}
+
+:sextb is op=0x2C {
+
+}
+
+:add is op=0x2D {
+
+}
+
+:or is op=0x2E {
+
+}
+
+:sl is op=0x2F {
+
+}
+
+:b is op=0x30 {
+
+}
+
+:modu is op=0x31 {
+
+}
+
+:sub is op=0x32 {
+
+}
+
+# 0x33 is reserved
+
+:wcsr is op=0x34 {
+
+}
+
+:mod is op=0x35 {
+
+}
+
+:call is op=0x36 {
+
+}
+
+:sexth is op=0x37 {
+
+}
+
+:bi is op=0x38 {
+
+}
+
+:cmpe is op=0x39 {
+
+}
+
+:cmpg is op=0x3A {
+
+}
+
+:cmpge is op=0x3B {
+
+}
+
+:cmpgeu is op=0x3C {
+
+}
+
+:cmpgu is op=0x3D {
+
+}
+
+:calli is op=0x3E {
+
+}
+
+:cmpne is op=0x3F {
+
+}

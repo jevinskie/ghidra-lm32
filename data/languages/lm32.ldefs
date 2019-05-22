@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language_definitions>
+  <language processor="LM32"
+    endian="big"
+    size="32"
+    variant="default"
+    version="1.0"
+    slafile="lm32.sla"
+    processorspec="lm32.pspec"
+    id="LM32:BE:32:default">
+    <description>LatticeMico32</description>
+    <compiler name="default" spec="lm32.cspec" id="default"/>
+  </language>
+</language_definitions>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<compiler_spec>
+  <global>
+    <range space="RAM"/>
+  </global>
+  <stackpointer register="sp" space="RAM"/>
+  <!--<default_proto>
+  </default_proto>-->
+</compiler_spec>
