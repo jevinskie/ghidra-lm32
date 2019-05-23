@@ -281,7 +281,7 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 }
 
 :sexth reg0, reg1 is op=0x37 & reg0 & reg1 {
-	reg0 = (reg1 & 0xffff) s>> 16;
+	reg0 = (reg1 << 16) s>> 16;
 }
 
 :bi Rel26 is op=0x38 & Rel26 {
