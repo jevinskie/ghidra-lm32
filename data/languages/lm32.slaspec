@@ -3,7 +3,7 @@
 define endian=big;
 define alignment=4;
 
-define space ram type=ram_space size=4 size=4 wordsize=1 default;
+define space ram type=ram_space size=4 wordsize=1 default;
 define space register type=register_space size=4;
 
 # General Purpose Registers
@@ -21,6 +21,11 @@ define register offset=0x2000 size=4 [
 define register offset=0x3000 size=4 [
 	DC DEBA JTX JRX BP0 BP1 BP2 BP3 WP0 WP1 WP2 WP3
 ];
+
+define register offset=0x4000 size=4 contextreg;
+define context contextreg
+	LRset = (1,1) noflow  # 1 if the instruction before was a mov lr,pc
+;
 
 #
 # Tokens
@@ -255,7 +260,11 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 }
 
 :b reg0 is op=0x30 & reg0 {
-	goto reg0;
+	goto [reg0];
+}
+
+:ret is op=0x30 & reg0=29  {
+	return [ra];
 }
 
 :modu reg0, reg1, reg2 is op=0x31 & reg0 & reg1 & reg2 {
