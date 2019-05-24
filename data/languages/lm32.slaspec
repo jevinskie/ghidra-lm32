@@ -61,6 +61,18 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 	export *:4 reloc;
 }
 
+inst_fmt_ri: is_inst_fmt_ri is b31 [ is_inst_fmt_ri=b31; ] { export *:1 is_inst_fmt_ri; }
+# inst_fmt_ri: is_inst_fmt_ri is b31=1 [ is_inst_fmt_ri=0; ] { export *:1 is_inst_fmt_ri; }
+# inst_fmt_ri: is_inst_fmt_ri is b31=0 [ is_inst_fmt_ri=1; ] { export *:1 is_inst_fmt_ri; }
+# inst_fmt_ri: "ri1" is b31=0 { export 1:1; }
+# inst_fmt_i: { export 0:1; }
+# inst_fmt_i: is b31=1 & (op5=0x18 | op5=0x1e) { export 1:1; }
+# inst_fmt_cr: { export 0:1; }
+# inst_fmt_cr: is b31=1 & (op5=0x04 | op5=0x14) { export 1:1; }
+# inst_fmt_rr: { export zext(inst_fmt_ri | inst_fmt_i | inst_fmt_cr) == 0):1; }
+
+
+
 gpr0: reg0 is reg0 { export reg0; }
 gpr0: "0" is reg0=0 { export 0:4; } # Special case
 
@@ -70,14 +82,20 @@ gpr1: "0" is reg1=0 { export 0:4; } # Special case
 gpr2: reg2 is reg2 { export reg2; }
 gpr2: "0" is reg2=0 { export 0:4; } # Special case
 
-inst_fmt_ri: { export 0:1; }
-inst_fmt_ri: is b31=0 { export 1:1; }
-inst_fmt_i: { export 0:1; }
-inst_fmt_i: is b31=1 & (op5=0x18 | op5=0x1e) { export 1:1; }
-inst_fmt_cr: { export 0:1; }
-inst_fmt_cr: is b31=1 & (op5=0x04 | op5=0x14) { export 1:1; }
-inst_fmt_rr: { export zext(inst_fmt_ri | inst_fmt_i | inst_fmt_cr) == 0):1; }
+# inst_fmt_ri: "ri0" is inst_fmt_ri { export 0:1; }
+# inst_fmt_ri: "ri1" is b31=0 { export 1:1; }
+# inst_fmt_i: { export 0:1; }
+# inst_fmt_i: is b31=1 & (op5=0x18 | op5=0x1e) { export 1:1; }
+# inst_fmt_cr: { export 0:1; }
+# inst_fmt_cr: is b31=1 & (op5=0x04 | op5=0x14) { export 1:1; }
+# inst_fmt_rr: { export zext(inst_fmt_ri | inst_fmt_i | inst_fmt_cr) == 0):1; }
 
+# rX: reg2 is reg2 & is_inst_fmt_rr=1 { export reg2; }
+# rY: reg0 is reg0 & is_inst_fmt_rr=1 { export reg0; }
+# rZ: reg1 is reg1 & is_inst_fmt_rr=1 { export reg1; }
+
+rX: reg1 is reg1 & inst_fmt_ri { export reg1; }
+rY: reg0 is reg0 & inst_fmt_ri { export reg0; }
 
 #
 # Instructions
@@ -166,11 +184,24 @@ inst_fmt_rr: { export zext(inst_fmt_ri | inst_fmt_i | inst_fmt_cr) == 0):1; }
 	r0=0;
 }
 
+# :addi gpr0, gpr1, simm16 is op=0x0D & gpr0 & gpr1 & simm16 {
+# 	r0=0;
+# 	gpr0 = gpr1 + simm16;
+# 	r0=0;
+# }
+
 :addi gpr0, gpr1, simm16 is op=0x0D & gpr0 & gpr1 & simm16 {
 	r0=0;
 	gpr0 = gpr1 + simm16;
 	r0=0;
 }
+
+# :addi rX, rY, simm16 is op=0x0D & rX & rY & simm16 {
+# 	r0=0;
+# 	rX = rY + simm16;
+# 	r0=0;
+# }
+
 
 :ori gpr0, gpr1, imm16 is op=0x0E & gpr0 & gpr1 & imm16 {
 	r0=0;
@@ -358,11 +389,23 @@ inst_fmt_rr: { export zext(inst_fmt_ri | inst_fmt_i | inst_fmt_cr) == 0):1; }
 	r0=0;
 }
 
+# :add gpr0, gpr1, gpr2 is op=0x2D & gpr0 & gpr1 & gpr2 {
+# 	r0=0;
+# 	gpr0 = gpr1 + gpr2;
+# 	r0=0;
+# }
+
 :add gpr0, gpr1, gpr2 is op=0x2D & gpr0 & gpr1 & gpr2 {
 	r0=0;
 	gpr0 = gpr1 + gpr2;
 	r0=0;
 }
+
+# :add rX, rY, rZ is op=0x2D & rX & rY & rZ {
+# 	r0=0;
+# 	rX = rY + rZ;
+# 	r0=0;
+# }
 
 :or gpr0, gpr1, gpr2 is op=0x2E & gpr0 & gpr1 & gpr2 {
 	r0=0;
