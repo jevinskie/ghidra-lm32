@@ -61,7 +61,11 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 	export *:4 reloc;
 }
 
-inst_fmt_ri: is_inst_fmt_ri is b31 [ is_inst_fmt_ri=b31; ] { export *:1 is_inst_fmt_ri; }
+RelSelf: reloc is b31=0 [ reloc=inst_start; ] {
+	export *:4 reloc;
+}
+
+inst_fmt_ri: is_inst_fmt_ri is b31=0 [ is_inst_fmt_ri=1; ] { export *:1 is_inst_fmt_ri; }
 # inst_fmt_ri: is_inst_fmt_ri is b31=1 [ is_inst_fmt_ri=0; ] { export *:1 is_inst_fmt_ri; }
 # inst_fmt_ri: is_inst_fmt_ri is b31=0 [ is_inst_fmt_ri=1; ] { export *:1 is_inst_fmt_ri; }
 # inst_fmt_ri: "ri1" is b31=0 { export 1:1; }
@@ -190,17 +194,17 @@ rY: reg0 is reg0 & inst_fmt_ri { export reg0; }
 # 	r0=0;
 # }
 
-:addi gpr0, gpr1, simm16 is op=0x0D & gpr0 & gpr1 & simm16 {
-	r0=0;
-	gpr0 = gpr1 + simm16;
-	r0=0;
-}
-
-# :addi rX, rY, simm16 is op=0x0D & rX & rY & simm16 {
+# :addi gpr0, gpr1, simm16 is op=0x0D & gpr0 & gpr1 & simm16 {
 # 	r0=0;
-# 	rX = rY + simm16;
+# 	gpr0 = gpr1 + simm16;
 # 	r0=0;
 # }
+
+:addi rX, rY, simm16 is op=0x0D & rX & rY & simm16 {
+	r0=0;
+	rX = rY + simm16;
+	r0=0;
+}
 
 
 :ori gpr0, gpr1, imm16 is op=0x0E & gpr0 & gpr1 & imm16 {
