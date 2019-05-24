@@ -32,7 +32,9 @@ define context contextreg
 #
 
 define token opfields(32)
+	b31 = (31, 31)
 	op = (26, 31)
+	op5 = (26, 30)
 	reg0 = (21, 25)
 	reg1 = (16, 20)
 	reg2 = (11, 15)
@@ -42,6 +44,8 @@ define token opfields(32)
 	simm26 = (0, 25) signed
 	imm5 = (0, 4)
 	simm5 = (0, 4) signed
+	z11 = (0, 10)
+	z16 = (0, 16)
 ;
 
 attach variables [ reg0 reg1 reg2 ] [
@@ -66,272 +70,403 @@ gpr1: "0" is reg1=0 { export 0:4; } # Special case
 gpr2: reg2 is reg2 { export reg2; }
 gpr2: "0" is reg2=0 { export 0:4; } # Special case
 
+inst_fmt_ri: { export 0:1; }
+inst_fmt_ri: is b31=0 { export 1:1; }
+inst_fmt_i: { export 0:1; }
+inst_fmt_i: is b31=1 & (op5=0x18 | op5=0x1e) { export 1:1; }
+inst_fmt_cr: { export 0:1; }
+inst_fmt_cr: is b31=1 & (op5=0x04 | op5=0x14) { export 1:1; }
+inst_fmt_rr: { export zext(inst_fmt_ri | inst_fmt_i | inst_fmt_cr) == 0):1; }
+
 
 #
 # Instructions
 #
 
-:srui reg0, reg1, imm5 is op=0x00 & reg0 & reg1 & imm5 {
-	reg0 = reg1 >> imm5;
+:srui gpr0, gpr1, imm5 is op=0x00 & gpr0 & gpr1 & imm5 {
+	r0=0;
+	gpr0 = gpr1 >> imm5;
+	r0=0;
 }
 
-:nori reg0, reg1, imm16 is op=0x01 & reg0 & reg1 & imm16 {
-	reg0 = ~(reg1 | imm16);
+:nori gpr0, gpr1, imm16 is op=0x01 & gpr0 & gpr1 & imm16 {
+	r0=0;
+	gpr0 = ~(gpr1 | imm16);
+	r0=0;
 }
 
-:muli reg0, reg1, simm16 is op=0x02 & reg0 & reg1 & simm16 {
-	reg0 = ((reg1 * simm16) & 0xFFFFFFFF);
+:muli gpr0, gpr1, simm16 is op=0x02 & gpr0 & gpr1 & simm16 {
+	r0=0;
+	gpr0 = ((gpr1 * simm16) & 0xFFFFFFFF);
+	r0=0;
 }
 
-:sh reg0, reg1, simm16 is op=0x03 & reg0 & reg1 & simm16 {
-	local address = reg1 + simm16;
-	*[ram]:2 address = reg0;
+:sh gpr0, gpr1, simm16 is op=0x03 & gpr0 & gpr1 & simm16 {
+	r0=0;
+	local address = gpr1 + simm16;
+	*[ram]:2 address = gpr0;
+	r0=0;
 }
 
-:lb reg0, reg1, simm16 is op=0x04 & reg0 & reg1 & simm16 {
-	local address = reg1 + simm16;
-	reg0 = sext(*[ram]:1 address);
+:lb gpr0, gpr1, simm16 is op=0x04 & gpr0 & gpr1 & simm16 {
+	r0=0;
+	local address = gpr1 + simm16;
+	gpr0 = sext(*[ram]:1 address);
+	r0=0;
 }
 
-:sri reg0, reg1, imm5 is op=0x05 & reg0 & reg1 & imm5 {
-	reg0 = reg1 s>> imm5;
+:sri gpr0, gpr1, imm5 is op=0x05 & gpr0 & gpr1 & imm5 {
+	r0=0;
+	gpr0 = gpr1 s>> imm5;
+	r0=0;
 }
 
-:xori reg0, reg1, imm16 is op=0x06 & reg0 & reg1 & imm16 {
-	reg0 = reg1 ^ imm16;
+:xori gpr0, gpr1, imm16 is op=0x06 & gpr0 & gpr1 & imm16 {
+	r0=0;
+	gpr0 = gpr1 ^ imm16;
+	r0=0;
 }
 
-:lh reg0, reg1, simm16 is op=0x07 & reg0 & reg1 & simm16 {
-	local address = reg1 + simm16;
-	reg0 = sext(*[ram]:2 address);
+:lh gpr0, gpr1, simm16 is op=0x07 & gpr0 & gpr1 & simm16 {
+	r0=0;
+	local address = gpr1 + simm16;
+	gpr0 = sext(*[ram]:2 address);
+	r0=0;
 }
 
-:andi reg0, reg1, imm16 is op=0x08 & reg0 & reg1 & imm16 {
-	reg0 = reg1 & imm16;
+:andi gpr0, gpr1, imm16 is op=0x08 & gpr0 & gpr1 & imm16 {
+	r0=0;
+	gpr0 = gpr1 & imm16;
+	r0=0;
 }
 
-:xnori reg0, reg1, imm16 is op=0x09 & reg0 & reg1 & imm16 {
-	reg0 = ~(reg1 ^ imm16);
+:xnori gpr0, gpr1, imm16 is op=0x09 & gpr0 & gpr1 & imm16 {
+	r0=0;
+	gpr0 = ~(gpr1 ^ imm16);
+	r0=0;
 }
 
-:lw reg0, reg1, simm16 is op=0x0A & reg0 & reg1 & simm16 {
-	local address = reg1 + simm16;
-	reg0 = *[ram]:4 address;
+:lw gpr0, gpr1, simm16 is op=0x0A & gpr0 & gpr1 & simm16 {
+	r0=0;
+	local address = gpr1 + simm16;
+	gpr0 = *[ram]:4 address;
+	r0=0;
 }
 
-:lhu reg0, reg1, simm16 is op=0x0B & reg0 & reg1 & simm16 {
-	local address = reg1 + simm16;
-	reg0 = zext(*[ram]:2 address);
+:lhu gpr0, gpr1, simm16 is op=0x0B & gpr0 & gpr1 & simm16 {
+	r0=0;
+	local address = gpr1 + simm16;
+	gpr0 = zext(*[ram]:2 address);
+	r0=0;
 }
 
-:sb reg0, reg1 is op=0x0c & reg0 & reg1 {
-	*[ram]:1 reg1 = reg0;
+:sb gpr0, gpr1 is op=0x0c & gpr0 & gpr1 {
+	r0=0;
+	*[ram]:1 gpr1 = gpr0;
+	r0=0;
 }
 
-:addi reg0, reg1, simm16 is op=0x0D & reg0 & reg1 & simm16 {
-	reg0 = reg1 + simm16;
+:addi gpr0, gpr1, simm16 is op=0x0D & gpr0 & gpr1 & simm16 {
+	r0=0;
+	gpr0 = gpr1 + simm16;
+	r0=0;
 }
 
-:ori reg0, reg1, imm16 is op=0x0E & reg0 & reg1 & imm16 {
-	reg0 = reg1 | imm16;
+:ori gpr0, gpr1, imm16 is op=0x0E & gpr0 & gpr1 & imm16 {
+	r0=0;
+	gpr0 = gpr1 | imm16;
+	r0=0;
 }
 
-:sli reg0, reg1, imm5 is op=0x0F & reg0 & reg1 & imm5 {
-	reg0 = reg1 << imm5;
+:sli gpr0, gpr1, imm5 is op=0x0F & gpr0 & gpr1 & imm5 {
+	r0=0;
+	gpr0 = gpr1 << imm5;
+	r0=0;
 }
 
-:lbu reg0, reg1, simm16 is op=0x10 & reg0 & reg1 & simm16 {
-	local address = reg1 + simm16;
-	reg0 = zext(*[ram]:1 address);
+:lbu gpr0, gpr1, simm16 is op=0x10 & gpr0 & gpr1 & simm16 {
+	r0=0;
+	local address = gpr1 + simm16;
+	gpr0 = zext(*[ram]:1 address);
+	r0=0;
 }
 
-:be reg0, reg1 Rel16 is op=0x11 & reg0 & reg1 & Rel16 {
-	if (reg0 == reg1) goto Rel16;
+:be gpr0, gpr1 Rel16 is op=0x11 & gpr0 & gpr1 & Rel16 {
+	r0=0;
+	if (gpr0 == gpr1) goto Rel16;
+	r0=0;
 }
 
-:bg reg0, reg1 Rel16 is op=0x12 & reg0 & reg1 & Rel16 {
-	if (reg0 s> reg1) goto Rel16;
+:bg gpr0, gpr1 Rel16 is op=0x12 & gpr0 & gpr1 & Rel16 {
+	r0=0;
+	if (gpr0 s> gpr1) goto Rel16;
+	r0=0;
 }
 
-:bge reg0, reg1 Rel16 is op=0x13 & reg0 & reg1 & Rel16 {
-	if (reg0 s>= reg1) goto Rel16;
+:bge gpr0, gpr1 Rel16 is op=0x13 & gpr0 & gpr1 & Rel16 {
+	r0=0;
+	if (gpr0 s>= gpr1) goto Rel16;
+	r0=0;
 }
 
-:bgeu reg0, reg1 Rel16 is op=0x14 & reg0 & reg1 & Rel16 {
-	if (reg0 >= reg1) goto Rel16;
+:bgeu gpr0, gpr1 Rel16 is op=0x14 & gpr0 & gpr1 & Rel16 {
+	r0=0;
+	if (gpr0 >= gpr1) goto Rel16;
+	r0=0;
 }
 
-:bgu reg0, reg1 Rel16 is op=0x15 & reg0 & reg1 & Rel16 {
-	if (reg0 > reg1) goto Rel16;
+:bgu gpr0, gpr1 Rel16 is op=0x15 & gpr0 & gpr1 & Rel16 {
+	r0=0;
+	if (gpr0 > gpr1) goto Rel16;
+	r0=0;
 }
 
-:sw reg0, reg1, simm16 is op=0x16 & reg0 & reg1 & simm16 {
-	local address = reg0 + simm16;
-	*[ram]:4 address = reg1;
+:sw gpr0, gpr1, simm16 is op=0x16 & gpr0 & gpr1 & simm16 {
+	r0=0;
+	local address = gpr0 + simm16;
+	*[ram]:4 address = gpr1;
+	r0=0;
 }
 
-:bne reg0, reg1 Rel16 is op=0x17 & reg0 & reg1 & Rel16 {
-	if (reg0 != reg1) goto Rel16;
+:bne gpr0, gpr1 Rel16 is op=0x17 & gpr0 & gpr1 & Rel16 {
+	r0=0;
+	if (gpr0 != gpr1) goto Rel16;
+	r0=0;
 }
 
-:andhi reg0, reg1, imm16 is op=0x18 & reg0 & reg1 & imm16 {
-	reg0 = reg1 & (imm16 << 16);
-}
-
-
-:cmpei reg0, reg1, simm16 is op=0x19 & reg0 & reg1 & simm16 {
-	reg0 = zext(reg1:4 == sext(simm16:2));
-}
-
-:cmpgi reg0, reg1, simm16 is op=0x1A & reg0 & reg1 & simm16 {
-	reg0 = zext(reg1:4 s> sext(simm16:2));
-}
-
-:cmpgei reg0, reg1, simm16 is op=0x1B & reg0 & reg1 & simm16 {
-	reg0 = zext(reg1:4 s>= sext(simm16:2));
-}
-
-:cmpgeui reg0, reg1, imm16 is op=0x1C & reg0 & reg1 & imm16 {
-	reg0 = zext(reg1:4 >= zext(imm16:2));
-}
-
-:cmpgui reg0, reg1, imm16 is op=0x1D & reg0 & reg1 & imm16 {
-	reg0 = zext(reg1:4 > zext(imm16:2));
-}
-
-:orhi reg0, reg1, imm16 is op=0x1E & reg0 & reg1 & imm16 {
-	reg0 = reg1 | (imm16 << 16);
+:andhi gpr0, gpr1, imm16 is op=0x18 & gpr0 & gpr1 & imm16 {
+	r0=0;
+	gpr0 = gpr1 & (imm16 << 16);
+	r0=0;
 }
 
 
-:cmpnei reg0, reg1, simm16 is op=0x1F & reg0 & reg1 & simm16 {
-	reg0 = zext(reg1:4 != sext(simm16:2));
+:cmpei gpr0, gpr1, simm16 is op=0x19 & gpr0 & gpr1 & simm16 {
+	r0=0;
+	gpr0 = zext(gpr1:4 == sext(simm16:2));
+	r0=0;
 }
 
-:sru reg0, reg1, reg2 is op=0x20 & reg0 & reg1 & reg2 {
-	reg0 = reg1 >> reg2;
+:cmpgi gpr0, gpr1, simm16 is op=0x1A & gpr0 & gpr1 & simm16 {
+	r0=0;
+	gpr0 = zext(gpr1:4 s> sext(simm16:2));
+	r0=0;
 }
 
-:nor reg0, reg1, reg2 is op=0x21 & reg0 & reg1 & reg2 {
-	reg0 = ~(reg1 | reg2);
+:cmpgei gpr0, gpr1, simm16 is op=0x1B & gpr0 & gpr1 & simm16 {
+	r0=0;
+	gpr0 = zext(gpr1:4 s>= sext(simm16:2));
+	r0=0;
 }
 
-:mul reg0, reg1, reg2 is op=0x22 & reg0 & reg1 & reg2 {
-	reg0 = (reg1 * reg2) & 0xFFFFFFFF;
+:cmpgeui gpr0, gpr1, imm16 is op=0x1C & gpr0 & gpr1 & imm16 {
+	r0=0;
+	gpr0 = zext(gpr1:4 >= zext(imm16:2));
+	r0=0;
 }
 
-:divu reg0, reg1, reg2 is op=0x23 & reg0 & reg1 & reg2 {
-	reg0 = reg1 / reg2;
+:cmpgui gpr0, gpr1, imm16 is op=0x1D & gpr0 & gpr1 & imm16 {
+	r0=0;
+	gpr0 = zext(gpr1:4 > zext(imm16:2));
+	r0=0;
+}
+
+:orhi gpr0, gpr1, imm16 is op=0x1E & gpr0 & gpr1 & imm16 {
+	r0=0;
+	gpr0 = gpr1 | (imm16 << 16);
+	r0=0;
+}
+
+
+:cmpnei gpr0, gpr1, simm16 is op=0x1F & gpr0 & gpr1 & simm16 {
+	r0=0;
+	gpr0 = zext(gpr1:4 != sext(simm16:2));
+	r0=0;
+}
+
+:sru gpr0, gpr1, gpr2 is op=0x20 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 >> gpr2;
+	r0=0;
+}
+
+:nor gpr0, gpr1, gpr2 is op=0x21 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = ~(gpr1 | gpr2);
+	r0=0;
+}
+
+:mul gpr0, gpr1, gpr2 is op=0x22 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = (gpr1 * gpr2) & 0xFFFFFFFF;
+	r0=0;
+}
+
+:divu gpr0, gpr1, gpr2 is op=0x23 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 / gpr2;
+	r0=0;
 }
 
 :rcsr is op=0x24 {
+	r0=0;
 
+	r0=0;
 }
 
-:sr reg0, reg1, reg2 is op=0x25 & reg0 & reg1 & reg2 {
-	reg0 = reg1 s>> reg2;
+:sr gpr0, gpr1, gpr2 is op=0x25 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 s>> gpr2;
+	r0=0;
 }
 
-:xor reg0, reg1, reg2 is op=0x26 & reg0 & reg1 & reg2 {
-	reg0 = reg1 ^ reg2;
+:xor gpr0, gpr1, gpr2 is op=0x26 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 ^ gpr2;
+	r0=0;
 }
 
-:div reg0, reg1, reg2 is op=0x27 & reg0 & reg1 & reg2 {
-	reg0 = reg1 s/ reg2;
+:div gpr0, gpr1, gpr2 is op=0x27 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 s/ gpr2;
+	r0=0;
 }
 
-:and reg0, reg1, reg2 is op=0x28 & reg0 & reg1 & reg2 {
-	reg0 = reg1 & reg2;
+:and gpr0, gpr1, gpr2 is op=0x28 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 & gpr2;
+	r0=0;
 }
 
-:xnor reg0, reg1, reg2 is op=0x29 & reg0 & reg1 & reg2 {
-	reg0 = ~(reg1 ^ reg2);
+:xnor gpr0, gpr1, gpr2 is op=0x29 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = ~(gpr1 ^ gpr2);
+	r0=0;
 }
 
 # 0x2A is reserved
 
 :raise is op=0x2B {
+	r0=0;
 
+	r0=0;
 }
 
-:sextb reg0, reg1 is op=0x2C & reg0 & reg1 {
-	reg0 = (reg1 << 24) s>> 24;
+:sextb gpr0, gpr1 is op=0x2C & gpr0 & gpr1 {
+	r0=0;
+	gpr0 = (gpr1 << 24) s>> 24;
+	r0=0;
 }
 
-:add reg0, reg1, reg2 is op=0x2D & reg0 & reg1 & reg2 {
-	reg0 = reg1 + reg2;
+:add gpr0, gpr1, gpr2 is op=0x2D & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 + gpr2;
+	r0=0;
 }
 
-:or reg0, reg1, reg2 is op=0x2E & reg0 & reg1 & reg2 {
-	reg0 = reg1 | reg2;
+:or gpr0, gpr1, gpr2 is op=0x2E & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 | gpr2;
+	r0=0;
 }
 
-:sl reg0, reg1, reg2 is op=0x2F & reg0 & reg1 & reg2 {
-	reg0 = reg1 << reg2;
+:sl gpr0, gpr1, gpr2 is op=0x2F & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 << gpr2;
+	r0=0;
 }
 
-:b reg0 is op=0x30 & reg0 {
-	goto [reg0];
+:b gpr0 is op=0x30 & gpr0 {
+	r0=0;
+	goto [gpr0];
 }
 
-:ret is op=0x30 & reg0=29  {
-	return [ra];
+:ret is op=0x30 & reg0=29 {
+	r0=0;
+	goto [ra];
 }
 
-:modu reg0, reg1, reg2 is op=0x31 & reg0 & reg1 & reg2 {
-	reg0 = reg1 % reg2;
+:modu gpr0, gpr1, gpr2 is op=0x31 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 % gpr2;
+	r0=0;
 }
 
-:sub reg0, reg1, reg2 is op=0x32 & reg0 & reg1 & reg2 {
-	reg0 = reg1 - reg2;
+:sub gpr0, gpr1, gpr2 is op=0x32 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 - gpr2;
+	r0=0;
 }
 
 # 0x33 is reserved
 
 :wcsr is op=0x34 {
+	r0=0;
 
+	r0=0;
 }
 
-:mod reg0, reg1, reg2 is op=0x35 & reg0 & reg1 & reg2 {
-	reg0 = reg1 s% reg2;
+:mod gpr0, gpr1, gpr2 is op=0x35 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = gpr1 s% gpr2;
+	r0=0;
 }
 
-:call reg0 is op=0x36 & reg0 {
-	call reg0;
+:call gpr0 is op=0x36 & gpr0 {
+	r0=0;
+	ra = PC + 4;
+	call [gpr0];
 }
 
-:sexth reg0, reg1 is op=0x37 & reg0 & reg1 {
-	reg0 = (reg1 << 16) s>> 16;
+:sexth gpr0, gpr1 is op=0x37 & gpr0 & gpr1 {
+	r0=0;
+	gpr0 = (gpr1 << 16) s>> 16;
+	r0=0;
 }
 
 :bi Rel26 is op=0x38 & Rel26 {
+	r0=0;
 	goto Rel26;
 }
 
-:cmpe reg0, reg1, reg2 is op=0x39 & reg0 & reg1 & reg2 {
-	reg0 = zext(reg1 == reg2);
+:cmpe gpr0, gpr1, gpr2 is op=0x39 & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = zext(gpr1 == gpr2);
+	r0=0;
 }
 
-:cmpg reg0, reg1, reg2 is op=0x3A & reg0 & reg1 & reg2 {
-	reg0 = zext(reg1 s> reg2);
+:cmpg gpr0, gpr1, gpr2 is op=0x3A & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = zext(gpr1 s> gpr2);
+	r0=0;
 }
 
-:cmpge reg0, reg1, reg2 is op=0x3B & reg0 & reg1 & reg2 {
-	reg0 = zext(reg1 s>= reg2);
+:cmpge gpr0, gpr1, gpr2 is op=0x3B & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = zext(gpr1 s>= gpr2);
+	r0=0;
 }
 
-:cmpgeu reg0, reg1, reg2 is op=0x3C & reg0 & reg1 & reg2 {
-	reg0 = zext(reg1 >= reg2);
+:cmpgeu gpr0, gpr1, gpr2 is op=0x3C & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = zext(gpr1 >= gpr2);
+	r0=0;
 }
 
-:cmpgu reg0, reg1, reg2 is op=0x3D & reg0 & reg1 & reg2 {
-	reg0 = zext(reg1 > reg2);
+:cmpgu gpr0, gpr1, gpr2 is op=0x3D & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = zext(gpr1 > gpr2);
+	r0=0;
 }
 
 :calli Rel26 is op=0x3E & Rel26 {
+	r0=0;
+	ra = PC + 4;
 	call Rel26;
 }
 
-:cmpne reg0, reg1, reg2 is op=0x3F & reg0 & reg1 & reg2 {
-	reg0 = zext(reg1 != reg2);
+:cmpne gpr0, gpr1, gpr2 is op=0x3F & gpr0 & gpr1 & gpr2 {
+	r0=0;
+	gpr0 = zext(gpr1 != gpr2);
+	r0=0;
 }
