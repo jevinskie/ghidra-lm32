@@ -61,11 +61,15 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 	export *:4 reloc;
 }
 
-RelSelf: reloc is b31=0 [ reloc=inst_start; ] {
-	export *:4 reloc;
-}
+# RelSelf: reloc is b31=0 [ reloc=inst_start; ] {
+# 	export *:4 reloc;
+# }
 
 inst_fmt_ri: is_inst_fmt_ri is b31=0 [ is_inst_fmt_ri=1; ] { export *:1 is_inst_fmt_ri; }
+inst_fmt_i: is_inst_fmt_i is b31=1 & (op5=0x18 | op5=0x1e) [ is_inst_fmt_i=1; ] { export *:1 is_inst_fmt_i; }
+inst_fmt_cr: is_inst_fmt_cr is b31=1 & (op5=0x04 | op5=0x14) [ is_inst_fmt_cr=1; ] { export *:1 is_inst_fmt_cr; }
+inst_fmt_rr: is_inst_fmt_rr is b31=1 & (op5!=0x18 & op5!=0x1e & op5!=0x04 & op5!=0x14) [ is_inst_fmt_rr = 1; ] { export *:1 is_inst_fmt_rr; }
+
 # inst_fmt_ri: is_inst_fmt_ri is b31=1 [ is_inst_fmt_ri=0; ] { export *:1 is_inst_fmt_ri; }
 # inst_fmt_ri: is_inst_fmt_ri is b31=0 [ is_inst_fmt_ri=1; ] { export *:1 is_inst_fmt_ri; }
 # inst_fmt_ri: "ri1" is b31=0 { export 1:1; }
@@ -94,9 +98,9 @@ gpr2: "0" is reg2=0 { export 0:4; } # Special case
 # inst_fmt_cr: is b31=1 & (op5=0x04 | op5=0x14) { export 1:1; }
 # inst_fmt_rr: { export zext(inst_fmt_ri | inst_fmt_i | inst_fmt_cr) == 0):1; }
 
-# rX: reg2 is reg2 & is_inst_fmt_rr=1 { export reg2; }
-# rY: reg0 is reg0 & is_inst_fmt_rr=1 { export reg0; }
-# rZ: reg1 is reg1 & is_inst_fmt_rr=1 { export reg1; }
+rX: reg2 is reg2 & inst_fmt_rr { export reg2; }
+rY: reg0 is reg0 & inst_fmt_rr { export reg0; }
+rZ: reg1 is reg1 & inst_fmt_rr { export reg1; }
 
 rX: reg1 is reg1 & inst_fmt_ri { export reg1; }
 rY: reg0 is reg0 & inst_fmt_ri { export reg0; }
@@ -399,17 +403,17 @@ rY: reg0 is reg0 & inst_fmt_ri { export reg0; }
 # 	r0=0;
 # }
 
-:add gpr0, gpr1, gpr2 is op=0x2D & gpr0 & gpr1 & gpr2 {
-	r0=0;
-	gpr0 = gpr1 + gpr2;
-	r0=0;
-}
-
-# :add rX, rY, rZ is op=0x2D & rX & rY & rZ {
+# :add gpr0, gpr1, gpr2 is op=0x2D & gpr0 & gpr1 & gpr2 {
 # 	r0=0;
-# 	rX = rY + rZ;
+# 	gpr0 = gpr1 + gpr2;
 # 	r0=0;
 # }
+
+:add rX, rY, rZ is op=0x2D & rX & rY & rZ {
+	r0=0;
+	rX = rY + rZ;
+	r0=0;
+}
 
 :or gpr0, gpr1, gpr2 is op=0x2E & gpr0 & gpr1 & gpr2 {
 	r0=0;
