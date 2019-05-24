@@ -98,12 +98,29 @@ gpr2: "0" is reg2=0 { export 0:4; } # Special case
 # inst_fmt_cr: is b31=1 & (op5=0x04 | op5=0x14) { export 1:1; }
 # inst_fmt_rr: { export zext(inst_fmt_ri | inst_fmt_i | inst_fmt_cr) == 0):1; }
 
+# rX: reg2 is reg2 & inst_fmt_rr { export reg2; }
+# rY: reg0 is reg0 & inst_fmt_rr { export reg0; }
+# rZ: reg1 is reg1 & inst_fmt_rr { export reg1; }
+
+# rX: reg1 is reg1 & inst_fmt_ri { export reg1; }
+# rY: reg0 is reg0 & inst_fmt_ri { export reg0; }
+
+# rX: reg2 is reg1 & inst_fmt_cr { export reg2; }
+
 rX: reg2 is reg2 & inst_fmt_rr { export reg2; }
+rX: "0" is reg2=0 & inst_fmt_rr { export 0:4; }
 rY: reg0 is reg0 & inst_fmt_rr { export reg0; }
+rY: "0" is reg0=0 & inst_fmt_rr { export 0:4; }
 rZ: reg1 is reg1 & inst_fmt_rr { export reg1; }
+rZ: "0" is reg1=0 & inst_fmt_rr { export 0:4; }
 
 rX: reg1 is reg1 & inst_fmt_ri { export reg1; }
+rX: "0" is reg1=0 & inst_fmt_ri { export 0:4; }
 rY: reg0 is reg0 & inst_fmt_ri { export reg0; }
+rY: "0" is reg0=0 & inst_fmt_ri { export 0:4; }
+
+rX: reg2 is reg2 & inst_fmt_cr { export reg2; }
+rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 
 #
 # Instructions
