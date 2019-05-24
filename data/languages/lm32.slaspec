@@ -234,6 +234,15 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	r0=0;
 }
 
+:mvi rX, simm16 is op=0x0D & rX & rY & simm16 & reg0=0 {
+	r0=0;
+	rX = sext(simm16:2);
+	r0=0;
+}
+
+:nop is op=0x0D & rX & rY & reg0=0 & reg1=0 & simm16=0 {
+	r0=0;
+}
 
 :ori rX, rY, imm16 is op=0x0E & rX & rY & imm16 {
 	r0=0;
@@ -340,6 +349,11 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	r0=0;
 }
 
+:mvhi rX, imm16 is op=0x1E & rX & rY & imm16 & reg0=0 {
+	r0=0;
+	rX = rX | (imm16 << 16);
+	r0=0;
+}
 
 :cmpnei rX, rY, simm16 is op=0x1F & rX & rY & simm16 {
 	r0=0;
@@ -407,6 +421,12 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	r0=0;
 }
 
+:not rX, rY is op=0x29 & rX & rY & rZ & reg1=0 {
+	r0=0;
+	rX = ~rY;
+	r0=0;
+}
+
 # 0x2A is reserved
 
 :raise is op=0x2B {
@@ -442,6 +462,12 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 :or rX, rY, rZ is op=0x2E & rX & rY & rZ {
 	r0=0;
 	rX = rY | rZ;
+	r0=0;
+}
+
+:mov rX, rY is op=0x2E & rX & rY & rZ & reg1=0 {
+	r0=0;
+	rX = rY;
 	r0=0;
 }
 
