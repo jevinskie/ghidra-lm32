@@ -492,7 +492,7 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 
 :ret is op=0x30 & reg0=29 {
 	r0=0;
-	goto [ra];
+	return [ra];
 }
 
 :modu rX, rY, rZ is op=0x31 & rX & rY & rZ {
@@ -523,7 +523,7 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 
 :call rX is op=0x36 & rX {
 	r0=0;
-	ra = PC + 4;
+	ra = inst_start + 4;
 	call [rX];
 }
 
@@ -570,7 +570,7 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 
 :calli Rel26 is op=0x3E & Rel26 {
 	r0=0;
-	ra = PC + 4;
+	ra = inst_start + 4;
 	call Rel26;
 }
 
