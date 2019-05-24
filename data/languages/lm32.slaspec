@@ -57,6 +57,16 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 	export *:4 reloc;
 }
 
+gpr0: reg0 is reg0 { export reg0; }
+gpr0: "0" is reg0=0 { export 0:4; } # Special case
+
+gpr1: reg1 is reg1 { export reg1; }
+gpr1: "0" is reg1=0 { export 0:4; } # Special case
+
+gpr2: reg2 is reg2 { export reg2; }
+gpr2: "0" is reg2=0 { export 0:4; } # Special case
+
+
 #
 # Instructions
 #
@@ -169,32 +179,33 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 }
 
 
-:cmpei is op=0x19 {
-
+:cmpei reg0, reg1, simm16 is op=0x19 & reg0 & reg1 & simm16 {
+	reg0 = zext(reg1:4 == sext(simm16:2));
 }
 
-:cmpgi is op=0x1A {
-
+:cmpgi reg0, reg1, simm16 is op=0x1A & reg0 & reg1 & simm16 {
+	reg0 = zext(reg1:4 s> sext(simm16:2));
 }
 
-:cmpgei is op=0x1B {
-
+:cmpgei reg0, reg1, simm16 is op=0x1B & reg0 & reg1 & simm16 {
+	reg0 = zext(reg1:4 s>= sext(simm16:2));
 }
 
-:cmpgeui is op=0x1C {
-
+:cmpgeui reg0, reg1, imm16 is op=0x1C & reg0 & reg1 & imm16 {
+	reg0 = zext(reg1:4 >= zext(imm16:2));
 }
 
-:cmpgui is op=0x1D {
-
+:cmpgui reg0, reg1, imm16 is op=0x1D & reg0 & reg1 & imm16 {
+	reg0 = zext(reg1:4 > zext(imm16:2));
 }
 
 :orhi reg0, reg1, imm16 is op=0x1E & reg0 & reg1 & imm16 {
 	reg0 = reg1 | (imm16 << 16);
 }
 
-:cmpnei is op=0x1F {
 
+:cmpnei reg0, reg1, simm16 is op=0x1F & reg0 & reg1 & simm16 {
+	reg0 = zext(reg1:4 != sext(simm16:2));
 }
 
 :sru reg0, reg1, reg2 is op=0x20 & reg0 & reg1 & reg2 {
@@ -297,30 +308,30 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 	goto Rel26;
 }
 
-:cmpe is op=0x39 {
-
+:cmpe reg0, reg1, reg2 is op=0x39 & reg0 & reg1 & reg2 {
+	reg0 = zext(reg1 == reg2);
 }
 
-:cmpg is op=0x3A {
-
+:cmpg reg0, reg1, reg2 is op=0x3A & reg0 & reg1 & reg2 {
+	reg0 = zext(reg1 s> reg2);
 }
 
-:cmpge is op=0x3B {
-
+:cmpge reg0, reg1, reg2 is op=0x3B & reg0 & reg1 & reg2 {
+	reg0 = zext(reg1 s>= reg2);
 }
 
-:cmpgeu is op=0x3C {
-
+:cmpgeu reg0, reg1, reg2 is op=0x3C & reg0 & reg1 & reg2 {
+	reg0 = zext(reg1 >= reg2);
 }
 
-:cmpgu is op=0x3D {
-
+:cmpgu reg0, reg1, reg2 is op=0x3D & reg0 & reg1 & reg2 {
+	reg0 = zext(reg1 > reg2);
 }
 
 :calli Rel26 is op=0x3E & Rel26 {
 	call Rel26;
 }
 
-:cmpne is op=0x3F {
-
+:cmpne reg0, reg1, reg2 is op=0x3F & reg0 & reg1 & reg2 {
+	reg0 = zext(reg1 != reg2);
 }
