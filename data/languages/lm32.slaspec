@@ -27,6 +27,8 @@ define context contextreg
 	LRset = (1,1) noflow  # 1 if the instruction before was a mov lr,pc
 ;
 
+define pcodeop software_interrupt;
+
 #
 # Tokens
 #
@@ -36,6 +38,7 @@ define token opfields(32)
 	op = (26, 31)
 	op5 = (26, 30)
 	reg0 = (21, 25)
+	csr = (21, 25)
 	reg1 = (16, 20)
 	reg2 = (11, 15)
 	imm16 = (0, 15)
@@ -387,7 +390,7 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	r0=0;
 }
 
-:rcsr is op=0x24 {
+:rcsr reg2, csr is op=0x24 & csr & reg2 {
 	r0=0;
 
 	r0=0;
@@ -431,8 +434,11 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 
 # 0x2A is reserved
 
-:raise is op=0x2B {
+:raise imm26 is op=0x2B & imm26 {
 	r0=0;
+
+	local tmp:4 = imm26;
+	software_interrupt(tmp);
 
 	r0=0;
 }
@@ -503,7 +509,7 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 
 # 0x33 is reserved
 
-:wcsr is op=0x34 {
+:wcsr csr, reg1 is op=0x34 & reg1 & csr {
 	r0=0;
 
 	r0=0;
