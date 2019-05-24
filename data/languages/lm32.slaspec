@@ -119,6 +119,12 @@ rX: "0" is reg1=0 & inst_fmt_ri { export 0:4; }
 rY: reg0 is reg0 & inst_fmt_ri { export reg0; }
 rY: "0" is reg0=0 & inst_fmt_ri { export 0:4; }
 
+# store inst
+rX: reg0 is reg0 & inst_fmt_ri & (op=0x03 | op=0x0C | op=0x16) { export reg0; }
+rX: "0" is reg0=0 & inst_fmt_ri & (op=0x03 | op=0x0C | op=0x16) { export 0:4; }
+rY: reg1 is reg1 & inst_fmt_ri & (op=0x03 | op=0x0C | op=0x16) { export reg1; }
+rY: "0" is reg1=0 & inst_fmt_ri & (op=0x03 | op=0x0C | op=0x16) { export 0:4; }
+
 rX: reg2 is reg2 & inst_fmt_cr { export reg2; }
 rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 
@@ -126,98 +132,99 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 # Instructions
 #
 
-:srui gpr0, gpr1, imm5 is op=0x00 & gpr0 & gpr1 & imm5 {
+:srui rX, rY, imm5 is op=0x00 & rX & rY & imm5 {
 	r0=0;
-	gpr0 = gpr1 >> imm5;
-	r0=0;
-}
-
-:nori gpr0, gpr1, imm16 is op=0x01 & gpr0 & gpr1 & imm16 {
-	r0=0;
-	gpr0 = ~(gpr1 | imm16);
+	rX = rY >> imm5;
 	r0=0;
 }
 
-:muli gpr0, gpr1, simm16 is op=0x02 & gpr0 & gpr1 & simm16 {
+:nori rX, rY, imm16 is op=0x01 & rX & rY & imm16 {
 	r0=0;
-	gpr0 = ((gpr1 * simm16) & 0xFFFFFFFF);
-	r0=0;
-}
-
-:sh gpr0, gpr1, simm16 is op=0x03 & gpr0 & gpr1 & simm16 {
-	r0=0;
-	local address = gpr1 + simm16;
-	*[ram]:2 address = gpr0;
+	rX = ~(rY | imm16);
 	r0=0;
 }
 
-:lb gpr0, gpr1, simm16 is op=0x04 & gpr0 & gpr1 & simm16 {
+:muli rX, rY, simm16 is op=0x02 & rX & rY & simm16 {
 	r0=0;
-	local address = gpr1 + simm16;
-	gpr0 = sext(*[ram]:1 address);
-	r0=0;
-}
-
-:sri gpr0, gpr1, imm5 is op=0x05 & gpr0 & gpr1 & imm5 {
-	r0=0;
-	gpr0 = gpr1 s>> imm5;
+	rX = ((rY * simm16) & 0xFFFFFFFF);
 	r0=0;
 }
 
-:xori gpr0, gpr1, imm16 is op=0x06 & gpr0 & gpr1 & imm16 {
+:sh (rX+simm16), rY is op=0x03 & rX & rY & simm16 {
 	r0=0;
-	gpr0 = gpr1 ^ imm16;
-	r0=0;
-}
-
-:lh gpr0, gpr1, simm16 is op=0x07 & gpr0 & gpr1 & simm16 {
-	r0=0;
-	local address = gpr1 + simm16;
-	gpr0 = sext(*[ram]:2 address);
+	local address = rX + simm16;
+	*[ram]:2 address = rY;
 	r0=0;
 }
 
-:andi gpr0, gpr1, imm16 is op=0x08 & gpr0 & gpr1 & imm16 {
+:lb rX, (rY+simm16) is op=0x04 & rX & rY & simm16 {
 	r0=0;
-	gpr0 = gpr1 & imm16;
-	r0=0;
-}
-
-:xnori gpr0, gpr1, imm16 is op=0x09 & gpr0 & gpr1 & imm16 {
-	r0=0;
-	gpr0 = ~(gpr1 ^ imm16);
+	local address = rY + simm16;
+	rX = sext(*[ram]:1 address);
 	r0=0;
 }
 
-:lw gpr0, gpr1, simm16 is op=0x0A & gpr0 & gpr1 & simm16 {
+:sri rX, rY, imm5 is op=0x05 & rX & rY & imm5 {
 	r0=0;
-	local address = gpr1 + simm16;
-	gpr0 = *[ram]:4 address;
-	r0=0;
-}
-
-:lhu gpr0, gpr1, simm16 is op=0x0B & gpr0 & gpr1 & simm16 {
-	r0=0;
-	local address = gpr1 + simm16;
-	gpr0 = zext(*[ram]:2 address);
+	rX = rY s>> imm5;
 	r0=0;
 }
 
-:sb gpr0, gpr1 is op=0x0c & gpr0 & gpr1 {
+:xori rX, rY, imm16 is op=0x06 & rX & rY & imm16 {
 	r0=0;
-	*[ram]:1 gpr1 = gpr0;
+	rX = rY ^ imm16;
 	r0=0;
 }
 
-# :addi gpr0, gpr1, simm16 is op=0x0D & gpr0 & gpr1 & simm16 {
+:lh rX, (rY+simm16) is op=0x07 & rX & rY & simm16 {
+	r0=0;
+	local address = rY + simm16;
+	rX = sext(*[ram]:2 address);
+	r0=0;
+}
+
+:andi rX, rY, imm16 is op=0x08 & rX & rY & imm16 {
+	r0=0;
+	rX = rY & imm16;
+	r0=0;
+}
+
+:xnori rX, rY, imm16 is op=0x09 & rX & rY & imm16 {
+	r0=0;
+	rX = ~(rY ^ imm16);
+	r0=0;
+}
+
+:lw rX, (rY+simm16) is op=0x0A & rX & rY & simm16 {
+	r0=0;
+	local address = rY + simm16;
+	rX = *[ram]:4 address;
+	r0=0;
+}
+
+:lhu rX, (rY+simm16) is op=0x0B & rX & rY & simm16 {
+	r0=0;
+	local address = rY + simm16;
+	rX = zext(*[ram]:2 address);
+	r0=0;
+}
+
+:sb (rX+simm16), rY is op=0x0c & rX & rY & simm16 {
+	r0=0;
+	local address = rX + simm16;
+	*[ram]:1 address = rX;
+	r0=0;
+}
+
+# :addi rX, rY, simm16 is op=0x0D & rX & rY & simm16 {
 # 	r0=0;
-# 	gpr0 = gpr1 + simm16;
+# 	rX = rY + simm16;
 # 	r0=0;
 # }
 
-# :addi gpr0, gpr1, simm16 is op=0x0D & gpr0 & gpr1 & simm16 {
+# :addi rX, rY, simm16 is op=0x0D & rX & rY & simm16 {
 # 	r0=0;
-# 	gpr0 = gpr1 + simm16;
+# 	rX = rY + simm16;
 # 	r0=0;
 # }
 
@@ -228,139 +235,139 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 }
 
 
-:ori gpr0, gpr1, imm16 is op=0x0E & gpr0 & gpr1 & imm16 {
+:ori rX, rY, imm16 is op=0x0E & rX & rY & imm16 {
 	r0=0;
-	gpr0 = gpr1 | imm16;
-	r0=0;
-}
-
-:sli gpr0, gpr1, imm5 is op=0x0F & gpr0 & gpr1 & imm5 {
-	r0=0;
-	gpr0 = gpr1 << imm5;
+	rX = rY | imm16;
 	r0=0;
 }
 
-:lbu gpr0, gpr1, simm16 is op=0x10 & gpr0 & gpr1 & simm16 {
+:sli rX, rY, imm5 is op=0x0F & rX & rY & imm5 {
 	r0=0;
-	local address = gpr1 + simm16;
-	gpr0 = zext(*[ram]:1 address);
-	r0=0;
-}
-
-:be gpr0, gpr1 Rel16 is op=0x11 & gpr0 & gpr1 & Rel16 {
-	r0=0;
-	if (gpr0 == gpr1) goto Rel16;
+	rX = rY << imm5;
 	r0=0;
 }
 
-:bg gpr0, gpr1 Rel16 is op=0x12 & gpr0 & gpr1 & Rel16 {
+:lbu rX, (rY+simm16) is op=0x10 & rX & rY & simm16 {
 	r0=0;
-	if (gpr0 s> gpr1) goto Rel16;
-	r0=0;
-}
-
-:bge gpr0, gpr1 Rel16 is op=0x13 & gpr0 & gpr1 & Rel16 {
-	r0=0;
-	if (gpr0 s>= gpr1) goto Rel16;
+	local address = rY + simm16;
+	rX = zext(*[ram]:1 address);
 	r0=0;
 }
 
-:bgeu gpr0, gpr1 Rel16 is op=0x14 & gpr0 & gpr1 & Rel16 {
+:be rX, rY Rel16 is op=0x11 & rX & rY & Rel16 {
 	r0=0;
-	if (gpr0 >= gpr1) goto Rel16;
-	r0=0;
-}
-
-:bgu gpr0, gpr1 Rel16 is op=0x15 & gpr0 & gpr1 & Rel16 {
-	r0=0;
-	if (gpr0 > gpr1) goto Rel16;
+	if (rX == rY) goto Rel16;
 	r0=0;
 }
 
-:sw gpr0, gpr1, simm16 is op=0x16 & gpr0 & gpr1 & simm16 {
+:bg rX, rY Rel16 is op=0x12 & rX & rY & Rel16 {
 	r0=0;
-	local address = gpr0 + simm16;
-	*[ram]:4 address = gpr1;
-	r0=0;
-}
-
-:bne gpr0, gpr1 Rel16 is op=0x17 & gpr0 & gpr1 & Rel16 {
-	r0=0;
-	if (gpr0 != gpr1) goto Rel16;
+	if (rX s> rY) goto Rel16;
 	r0=0;
 }
 
-:andhi gpr0, gpr1, imm16 is op=0x18 & gpr0 & gpr1 & imm16 {
+:bge rX, rY Rel16 is op=0x13 & rX & rY & Rel16 {
 	r0=0;
-	gpr0 = gpr1 & (imm16 << 16);
-	r0=0;
-}
-
-
-:cmpei gpr0, gpr1, simm16 is op=0x19 & gpr0 & gpr1 & simm16 {
-	r0=0;
-	gpr0 = zext(gpr1:4 == sext(simm16:2));
+	if (rX s>= rY) goto Rel16;
 	r0=0;
 }
 
-:cmpgi gpr0, gpr1, simm16 is op=0x1A & gpr0 & gpr1 & simm16 {
+:bgeu rX, rY Rel16 is op=0x14 & rX & rY & Rel16 {
 	r0=0;
-	gpr0 = zext(gpr1:4 s> sext(simm16:2));
-	r0=0;
-}
-
-:cmpgei gpr0, gpr1, simm16 is op=0x1B & gpr0 & gpr1 & simm16 {
-	r0=0;
-	gpr0 = zext(gpr1:4 s>= sext(simm16:2));
+	if (rX >= rY) goto Rel16;
 	r0=0;
 }
 
-:cmpgeui gpr0, gpr1, imm16 is op=0x1C & gpr0 & gpr1 & imm16 {
+:bgu rX, rY Rel16 is op=0x15 & rX & rY & Rel16 {
 	r0=0;
-	gpr0 = zext(gpr1:4 >= zext(imm16:2));
-	r0=0;
-}
-
-:cmpgui gpr0, gpr1, imm16 is op=0x1D & gpr0 & gpr1 & imm16 {
-	r0=0;
-	gpr0 = zext(gpr1:4 > zext(imm16:2));
+	if (rX > rY) goto Rel16;
 	r0=0;
 }
 
-:orhi gpr0, gpr1, imm16 is op=0x1E & gpr0 & gpr1 & imm16 {
+:sw (rX+simm16), rY is op=0x16 & rX & rY & simm16 {
 	r0=0;
-	gpr0 = gpr1 | (imm16 << 16);
+	local address = rX + simm16;
+	*[ram]:4 address = rY;
+	r0=0;
+}
+
+:bne rX, rY Rel16 is op=0x17 & rX & rY & Rel16 {
+	r0=0;
+	if (rX != rY) goto Rel16;
+	r0=0;
+}
+
+:andhi rX, rY, imm16 is op=0x18 & rX & rY & imm16 {
+	r0=0;
+	rX = rY & (imm16 << 16);
 	r0=0;
 }
 
 
-:cmpnei gpr0, gpr1, simm16 is op=0x1F & gpr0 & gpr1 & simm16 {
+:cmpei rX, rY, simm16 is op=0x19 & rX & rY & simm16 {
 	r0=0;
-	gpr0 = zext(gpr1:4 != sext(simm16:2));
-	r0=0;
-}
-
-:sru gpr0, gpr1, gpr2 is op=0x20 & gpr0 & gpr1 & gpr2 {
-	r0=0;
-	gpr0 = gpr1 >> gpr2;
+	rX = zext(rY:4 == sext(simm16:2));
 	r0=0;
 }
 
-:nor gpr0, gpr1, gpr2 is op=0x21 & gpr0 & gpr1 & gpr2 {
+:cmpgi rX, rY, simm16 is op=0x1A & rX & rY & simm16 {
 	r0=0;
-	gpr0 = ~(gpr1 | gpr2);
-	r0=0;
-}
-
-:mul gpr0, gpr1, gpr2 is op=0x22 & gpr0 & gpr1 & gpr2 {
-	r0=0;
-	gpr0 = (gpr1 * gpr2) & 0xFFFFFFFF;
+	rX = zext(rY:4 s> sext(simm16:2));
 	r0=0;
 }
 
-:divu gpr0, gpr1, gpr2 is op=0x23 & gpr0 & gpr1 & gpr2 {
+:cmpgei rX, rY, simm16 is op=0x1B & rX & rY & simm16 {
 	r0=0;
-	gpr0 = gpr1 / gpr2;
+	rX = zext(rY:4 s>= sext(simm16:2));
+	r0=0;
+}
+
+:cmpgeui rX, rY, imm16 is op=0x1C & rX & rY & imm16 {
+	r0=0;
+	rX = zext(rY:4 >= zext(imm16:2));
+	r0=0;
+}
+
+:cmpgui rX, rY, imm16 is op=0x1D & rX & rY & imm16 {
+	r0=0;
+	rX = zext(rY:4 > zext(imm16:2));
+	r0=0;
+}
+
+:orhi rX, rY, imm16 is op=0x1E & rX & rY & imm16 {
+	r0=0;
+	rX = rY | (imm16 << 16);
+	r0=0;
+}
+
+
+:cmpnei rX, rY, simm16 is op=0x1F & rX & rY & simm16 {
+	r0=0;
+	rX = zext(rY:4 != sext(simm16:2));
+	r0=0;
+}
+
+:sru rX, rY, rZ is op=0x20 & rX & rY & rZ {
+	r0=0;
+	rX = rY >> rZ;
+	r0=0;
+}
+
+:nor rX, rY, rZ is op=0x21 & rX & rY & rZ {
+	r0=0;
+	rX = ~(rY | rZ);
+	r0=0;
+}
+
+:mul rX, rY, rZ is op=0x22 & rX & rY & rZ {
+	r0=0;
+	rX = (rY * rZ) & 0xFFFFFFFF;
+	r0=0;
+}
+
+:divu rX, rY, rZ is op=0x23 & rX & rY & rZ {
+	r0=0;
+	rX = rY / rZ;
 	r0=0;
 }
 
@@ -370,33 +377,33 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	r0=0;
 }
 
-:sr gpr0, gpr1, gpr2 is op=0x25 & gpr0 & gpr1 & gpr2 {
+:sr rX, rY, rZ is op=0x25 & rX & rY & rZ {
 	r0=0;
-	gpr0 = gpr1 s>> gpr2;
-	r0=0;
-}
-
-:xor gpr0, gpr1, gpr2 is op=0x26 & gpr0 & gpr1 & gpr2 {
-	r0=0;
-	gpr0 = gpr1 ^ gpr2;
+	rX = rY s>> rZ;
 	r0=0;
 }
 
-:div gpr0, gpr1, gpr2 is op=0x27 & gpr0 & gpr1 & gpr2 {
+:xor rX, rY, rZ is op=0x26 & rX & rY & rZ {
 	r0=0;
-	gpr0 = gpr1 s/ gpr2;
-	r0=0;
-}
-
-:and gpr0, gpr1, gpr2 is op=0x28 & gpr0 & gpr1 & gpr2 {
-	r0=0;
-	gpr0 = gpr1 & gpr2;
+	rX = rY ^ rZ;
 	r0=0;
 }
 
-:xnor gpr0, gpr1, gpr2 is op=0x29 & gpr0 & gpr1 & gpr2 {
+:div rX, rY, rZ is op=0x27 & rX & rY & rZ {
 	r0=0;
-	gpr0 = ~(gpr1 ^ gpr2);
+	rX = rY s/ rZ;
+	r0=0;
+}
+
+:and rX, rY, rZ is op=0x28 & rX & rY & rZ {
+	r0=0;
+	rX = rY & rZ;
+	r0=0;
+}
+
+:xnor rX, rY, rZ is op=0x29 & rX & rY & rZ {
+	r0=0;
+	rX = ~(rY ^ rZ);
 	r0=0;
 }
 
@@ -408,21 +415,21 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	r0=0;
 }
 
-:sextb gpr0, gpr1 is op=0x2C & gpr0 & gpr1 {
+:sextb rX, rY is op=0x2C & rX & rY {
 	r0=0;
-	gpr0 = (gpr1 << 24) s>> 24;
+	rX = (rY << 24) s>> 24;
 	r0=0;
 }
 
-# :add gpr0, gpr1, gpr2 is op=0x2D & gpr0 & gpr1 & gpr2 {
+# :add rX, rY, rZ is op=0x2D & rX & rY & rZ {
 # 	r0=0;
-# 	gpr0 = gpr1 + gpr2;
+# 	rX = rY + rZ;
 # 	r0=0;
 # }
 
-# :add gpr0, gpr1, gpr2 is op=0x2D & gpr0 & gpr1 & gpr2 {
+# :add rX, rY, rZ is op=0x2D & rX & rY & rZ {
 # 	r0=0;
-# 	gpr0 = gpr1 + gpr2;
+# 	rX = rY + rZ;
 # 	r0=0;
 # }
 
@@ -432,21 +439,21 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	r0=0;
 }
 
-:or gpr0, gpr1, gpr2 is op=0x2E & gpr0 & gpr1 & gpr2 {
+:or rX, rY, rZ is op=0x2E & rX & rY & rZ {
 	r0=0;
-	gpr0 = gpr1 | gpr2;
-	r0=0;
-}
-
-:sl gpr0, gpr1, gpr2 is op=0x2F & gpr0 & gpr1 & gpr2 {
-	r0=0;
-	gpr0 = gpr1 << gpr2;
+	rX = rY | rZ;
 	r0=0;
 }
 
-:b gpr0 is op=0x30 & gpr0 {
+:sl rX, rY, rZ is op=0x2F & rX & rY & rZ {
 	r0=0;
-	goto [gpr0];
+	rX = rY << rZ;
+	r0=0;
+}
+
+:b rX is op=0x30 & rX {
+	r0=0;
+	goto [rX];
 }
 
 :ret is op=0x30 & reg0=29 {
@@ -454,15 +461,15 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	goto [ra];
 }
 
-:modu gpr0, gpr1, gpr2 is op=0x31 & gpr0 & gpr1 & gpr2 {
+:modu rX, rY, rZ is op=0x31 & rX & rY & rZ {
 	r0=0;
-	gpr0 = gpr1 % gpr2;
+	rX = rY % rZ;
 	r0=0;
 }
 
-:sub gpr0, gpr1, gpr2 is op=0x32 & gpr0 & gpr1 & gpr2 {
+:sub rX, rY, rZ is op=0x32 & rX & rY & rZ {
 	r0=0;
-	gpr0 = gpr1 - gpr2;
+	rX = rY - rZ;
 	r0=0;
 }
 
@@ -474,21 +481,21 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	r0=0;
 }
 
-:mod gpr0, gpr1, gpr2 is op=0x35 & gpr0 & gpr1 & gpr2 {
+:mod rX, rY, rZ is op=0x35 & rX & rY & rZ {
 	r0=0;
-	gpr0 = gpr1 s% gpr2;
+	rX = rY s% rZ;
 	r0=0;
 }
 
-:call gpr0 is op=0x36 & gpr0 {
+:call rX is op=0x36 & rX {
 	r0=0;
 	ra = PC + 4;
-	call [gpr0];
+	call [rX];
 }
 
-:sexth gpr0, gpr1 is op=0x37 & gpr0 & gpr1 {
+:sexth rX, rY is op=0x37 & rX & rY {
 	r0=0;
-	gpr0 = (gpr1 << 16) s>> 16;
+	rX = (rY << 16) s>> 16;
 	r0=0;
 }
 
@@ -497,33 +504,33 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	goto Rel26;
 }
 
-:cmpe gpr0, gpr1, gpr2 is op=0x39 & gpr0 & gpr1 & gpr2 {
+:cmpe rX, rY, rZ is op=0x39 & rX & rY & rZ {
 	r0=0;
-	gpr0 = zext(gpr1 == gpr2);
-	r0=0;
-}
-
-:cmpg gpr0, gpr1, gpr2 is op=0x3A & gpr0 & gpr1 & gpr2 {
-	r0=0;
-	gpr0 = zext(gpr1 s> gpr2);
+	rX = zext(rY == rZ);
 	r0=0;
 }
 
-:cmpge gpr0, gpr1, gpr2 is op=0x3B & gpr0 & gpr1 & gpr2 {
+:cmpg rX, rY, rZ is op=0x3A & rX & rY & rZ {
 	r0=0;
-	gpr0 = zext(gpr1 s>= gpr2);
-	r0=0;
-}
-
-:cmpgeu gpr0, gpr1, gpr2 is op=0x3C & gpr0 & gpr1 & gpr2 {
-	r0=0;
-	gpr0 = zext(gpr1 >= gpr2);
+	rX = zext(rY s> rZ);
 	r0=0;
 }
 
-:cmpgu gpr0, gpr1, gpr2 is op=0x3D & gpr0 & gpr1 & gpr2 {
+:cmpge rX, rY, rZ is op=0x3B & rX & rY & rZ {
 	r0=0;
-	gpr0 = zext(gpr1 > gpr2);
+	rX = zext(rY s>= rZ);
+	r0=0;
+}
+
+:cmpgeu rX, rY, rZ is op=0x3C & rX & rY & rZ {
+	r0=0;
+	rX = zext(rY >= rZ);
+	r0=0;
+}
+
+:cmpgu rX, rY, rZ is op=0x3D & rX & rY & rZ {
+	r0=0;
+	rX = zext(rY > rZ);
 	r0=0;
 }
 
@@ -533,8 +540,8 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	call Rel26;
 }
 
-:cmpne gpr0, gpr1, gpr2 is op=0x3F & gpr0 & gpr1 & gpr2 {
+:cmpne rX, rY, rZ is op=0x3F & rX & rY & rZ {
 	r0=0;
-	gpr0 = zext(gpr1 != gpr2);
+	rX = zext(rY != rZ);
 	r0=0;
 }
