@@ -28,6 +28,8 @@ define context contextreg
 ;
 
 define pcodeop software_interrupt;
+define pcodeop csr_write;
+define pcodeop csr_read;
 
 #
 # Tokens
@@ -119,10 +121,10 @@ rY: "0" is reg0=0 & inst_fmt_rr { export 0:4; }
 rZ: reg1 is reg1 & inst_fmt_rr { export reg1; }
 rZ: "0" is reg1=0 & inst_fmt_rr { export 0:4; }
 
-rX: reg1 is reg1 & inst_fmt_ri { export reg1; }
-rX: "0" is reg1=0 & inst_fmt_ri { export 0:4; }
-rY: reg0 is reg0 & inst_fmt_ri { export reg0; }
-rY: "0" is reg0=0 & inst_fmt_ri { export 0:4; }
+rX: reg1 is reg1 & inst_fmt_ri & op!=0x03 & op!=0x0C & op!=0x16 { export reg1; }
+rX: "0" is reg1=0 & inst_fmt_ri & op!=0x03 & op!=0x0C & op!=0x16 { export 0:4; }
+rY: reg0 is reg0 & inst_fmt_ri & op!=0x03 & op!=0x0C & op!=0x16 { export reg0; }
+rY: "0" is reg0=0 & inst_fmt_ri & op!=0x03 & op!=0x0C & op!=0x16 { export 0:4; }
 
 # store inst
 rX: reg0 is reg0 & inst_fmt_ri & (op=0x03 | op=0x0C | op=0x16) { export reg0; }
@@ -392,7 +394,8 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 
 :rcsr reg2, csr is op=0x24 & csr & reg2 {
 	r0=0;
-
+	local tmp_csr:4 = csr;
+	reg2 = csr_read(tmp_csr);
 	r0=0;
 }
 
@@ -511,7 +514,8 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 
 :wcsr csr, reg1 is op=0x34 & reg1 & csr {
 	r0=0;
-
+	local tmp_csr:4 = csr;
+	csr_write(tmp_csr, reg1);
 	r0=0;
 }
 
