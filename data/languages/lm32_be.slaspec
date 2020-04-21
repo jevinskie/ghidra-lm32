@@ -1,0 +1,4 @@
+@define ENDIAN "big"
+
+@include "lm32.sinc"
+

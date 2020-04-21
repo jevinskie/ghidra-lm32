@@ -1,6 +1,6 @@
 # sleigh specification file for LM32
 
-define endian=big;
+define endian=$(ENDIAN);
 define alignment=4;
 
 define space ram type=ram_space size=4 wordsize=1 default;
@@ -112,10 +112,10 @@ gpr2: "0" is reg2=0 { export 0:4; } # Special case
 
 # rX: reg2 is reg1 & inst_fmt_cr { export reg2; }
 
-rX: reg2 is reg2 & inst_fmt_rr & op!=0x30 { export reg2; }
-rX: "0" is reg2=0 & inst_fmt_rr & op!=0x30 { export 0:4; }
-rX: reg0 is reg0 & inst_fmt_rr & op=0x30 { export reg0; } # b rX
-rX: "0" is reg0=0 & inst_fmt_rr & op=0x30 { export 0:4; } # b rX where rX = r0
+rX: reg2 is reg2 & inst_fmt_rr & op!=0x30 & op!=0x36 { export reg2; }
+rX: "0" is reg2=0 & inst_fmt_rr & op!=0x30 & op!=0x36 { export 0:4; }
+rX: reg0 is reg0 & inst_fmt_rr & (op=0x30 | op=0x36) { export reg0; } # b rX
+rX: "0" is reg0=0 & inst_fmt_rr & (op=0x30 | op=0x36) { export 0:4; } # b rX where rX = r0
 rY: reg0 is reg0 & inst_fmt_rr { export reg0; }
 rY: "0" is reg0=0 & inst_fmt_rr { export 0:4; }
 rZ: reg1 is reg1 & inst_fmt_rr { export reg1; }
@@ -219,7 +219,7 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 :sb (rX+simm16), rY is op=0x0c & rX & rY & simm16 {
 	r0=0;
 	local address = rX + simm16;
-	*[ram]:1 address = rX;
+	*[ram]:1 address = rY;
 	r0=0;
 }
 

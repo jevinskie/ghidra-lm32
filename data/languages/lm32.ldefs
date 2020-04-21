@@ -5,10 +5,21 @@
     size="32"
     variant="default"
     version="1.0"
-    slafile="lm32.sla"
+    slafile="lm32_be.sla"
     processorspec="lm32.pspec"
     id="lm32:BE:32:default">
-    <description>LatticeMico32</description>
+    <description>LatticeMico32 BE</description>
+    <compiler name="default" spec="lm32.cspec" id="default"/>
+  </language>
+  <language processor="lm32"
+    endian="little"
+    size="32"
+    variant="default"
+    version="1.0"
+    slafile="lm32_le.sla"
+    processorspec="lm32.pspec"
+    id="lm32:LE:32:default">
+    <description>LatticeMico32 LE</description>
     <compiler name="default" spec="lm32.cspec" id="default"/>
   </language>
 </language_definitions>
