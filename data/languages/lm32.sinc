@@ -160,7 +160,7 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 :sh (rX+simm16), rY is op=0x03 & rX & rY & simm16 {
 	r0=0;
 	local address = rX + simm16;
-	*[ram]:2 address = rY;
+	*[ram]:2 address = rY:2;
 	r0=0;
 }
 
@@ -219,7 +219,7 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 :sb (rX+simm16), rY is op=0x0c & rX & rY & simm16 {
 	r0=0;
 	local address = rX + simm16;
-	*[ram]:1 address = rY;
+	*[ram]:1 address = rY:1;
 	r0=0;
 }
 
@@ -270,33 +270,33 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	r0=0;
 }
 
-:be rX, rY Rel16 is op=0x11 & rX & rY & Rel16 {
+:be rY, rX Rel16 is op=0x11 & rX & rY & Rel16 {
 	r0=0;
-	if (rX == rY) goto Rel16;
-	r0=0;
-}
-
-:bg rX, rY Rel16 is op=0x12 & rX & rY & Rel16 {
-	r0=0;
-	if (rX s> rY) goto Rel16;
+	if (rY == rX) goto Rel16;
 	r0=0;
 }
 
-:bge rX, rY Rel16 is op=0x13 & rX & rY & Rel16 {
+:bg rY, rX Rel16 is op=0x12 & rX & rY & Rel16 {
 	r0=0;
-	if (rX s>= rY) goto Rel16;
-	r0=0;
-}
-
-:bgeu rX, rY Rel16 is op=0x14 & rX & rY & Rel16 {
-	r0=0;
-	if (rX >= rY) goto Rel16;
+	if (rY s> rX) goto Rel16;
 	r0=0;
 }
 
-:bgu rX, rY Rel16 is op=0x15 & rX & rY & Rel16 {
+:bge rY, rX Rel16 is op=0x13 & rX & rY & Rel16 {
 	r0=0;
-	if (rX > rY) goto Rel16;
+	if (rY s>= rX) goto Rel16;
+	r0=0;
+}
+
+:bgeu rY, rX Rel16 is op=0x14 & rX & rY & Rel16 {
+	r0=0;
+	if (rY >= rX) goto Rel16;
+	r0=0;
+}
+
+:bgu rY, rX Rel16 is op=0x15 & rX & rY & Rel16 {
+	r0=0;
+	if (rY > rX) goto Rel16;
 	r0=0;
 }
 
@@ -307,9 +307,9 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 	r0=0;
 }
 
-:bne rX, rY Rel16 is op=0x17 & rX & rY & Rel16 {
+:bne rY, rX Rel16 is op=0x17 & rX & rY & Rel16 {
 	r0=0;
-	if (rX != rY) goto Rel16;
+	if (rY != rX) goto Rel16;
 	r0=0;
 }
 
