@@ -140,446 +140,308 @@ rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 #
 
 :srui rX, rY, imm5 is op=0x00 & rX & rY & imm5 {
-	r0=0;
 	rX = rY >> imm5;
-	r0=0;
 }
 
 :nori rX, rY, imm16 is op=0x01 & rX & rY & imm16 {
-	r0=0;
 	rX = ~(rY | imm16);
-	r0=0;
 }
 
 :muli rX, rY, simm16 is op=0x02 & rX & rY & simm16 {
-	r0=0;
 	rX = ((rY * simm16) & 0xFFFFFFFF);
-	r0=0;
 }
 
 :sh (rX+simm16), rY is op=0x03 & rX & rY & simm16 {
-	r0=0;
 	local address = rX + simm16;
 	*[ram]:2 address = rY:2;
-	r0=0;
 }
 
 :lb rX, (rY+simm16) is op=0x04 & rX & rY & simm16 {
-	r0=0;
 	local address = rY + simm16;
 	rX = sext(*[ram]:1 address);
-	r0=0;
 }
 
 :sri rX, rY, imm5 is op=0x05 & rX & rY & imm5 {
-	r0=0;
 	rX = rY s>> imm5;
-	r0=0;
 }
 
 :xori rX, rY, imm16 is op=0x06 & rX & rY & imm16 {
-	r0=0;
 	rX = rY ^ imm16;
-	r0=0;
 }
 
 :lh rX, (rY+simm16) is op=0x07 & rX & rY & simm16 {
-	r0=0;
 	local address = rY + simm16;
 	rX = sext(*[ram]:2 address);
-	r0=0;
 }
 
 :andi rX, rY, imm16 is op=0x08 & rX & rY & imm16 {
-	r0=0;
 	rX = rY & imm16;
-	r0=0;
 }
 
 :xnori rX, rY, imm16 is op=0x09 & rX & rY & imm16 {
-	r0=0;
 	rX = ~(rY ^ imm16);
-	r0=0;
 }
 
 :lw rX, (rY+simm16) is op=0x0A & rX & rY & simm16 {
-	r0=0;
 	local address = rY + simm16;
 	rX = *[ram]:4 address;
-	r0=0;
 }
 
 :lhu rX, (rY+simm16) is op=0x0B & rX & rY & simm16 {
-	r0=0;
 	local address = rY + simm16;
 	rX = zext(*[ram]:2 address);
-	r0=0;
 }
 
 :sb (rX+simm16), rY is op=0x0c & rX & rY & simm16 {
-	r0=0;
 	local address = rX + simm16;
 	*[ram]:1 address = rY:1;
-	r0=0;
 }
 
 # :addi rX, rY, simm16 is op=0x0D & rX & rY & simm16 {
-# 	r0=0;
-# 	rX = rY + simm16;
-# 	r0=0;
-# }
+# # 	rX = rY + simm16;
+# # }
 
 # :addi rX, rY, simm16 is op=0x0D & rX & rY & simm16 {
-# 	r0=0;
-# 	rX = rY + simm16;
-# 	r0=0;
-# }
+# # 	rX = rY + simm16;
+# # }
 
 :addi rX, rY, simm16 is op=0x0D & rX & rY & simm16 {
-	r0=0;
 	rX = rY + simm16;
-	r0=0;
 }
 
 :mvi rX, simm16 is op=0x0D & rX & rY & simm16 & reg0=0 {
-	r0=0;
 	rX = sext(simm16:2);
-	r0=0;
 }
 
 :nop is op=0x0D & rX & rY & reg0=0 & reg1=0 & simm16=0 {
-	r0=0;
 }
 
 :ori rX, rY, imm16 is op=0x0E & rX & rY & imm16 {
-	r0=0;
 	rX = rY | imm16;
-	r0=0;
 }
 
 :sli rX, rY, imm5 is op=0x0F & rX & rY & imm5 {
-	r0=0;
 	rX = rY << imm5;
-	r0=0;
 }
 
 :lbu rX, (rY+simm16) is op=0x10 & rX & rY & simm16 {
-	r0=0;
 	local address = rY + simm16;
 	rX = zext(*[ram]:1 address);
-	r0=0;
 }
 
 :be rY, rX Rel16 is op=0x11 & rX & rY & Rel16 {
-	r0=0;
 	if (rY == rX) goto Rel16;
-	r0=0;
 }
 
 :bg rY, rX Rel16 is op=0x12 & rX & rY & Rel16 {
-	r0=0;
 	if (rY s> rX) goto Rel16;
-	r0=0;
 }
 
 :bge rY, rX Rel16 is op=0x13 & rX & rY & Rel16 {
-	r0=0;
 	if (rY s>= rX) goto Rel16;
-	r0=0;
 }
 
 :bgeu rY, rX Rel16 is op=0x14 & rX & rY & Rel16 {
-	r0=0;
 	if (rY >= rX) goto Rel16;
-	r0=0;
 }
 
 :bgu rY, rX Rel16 is op=0x15 & rX & rY & Rel16 {
-	r0=0;
 	if (rY > rX) goto Rel16;
-	r0=0;
 }
 
 :sw (rX+simm16), rY is op=0x16 & rX & rY & simm16 {
-	r0=0;
 	local address = rX + simm16;
 	*[ram]:4 address = rY;
-	r0=0;
 }
 
 :bne rY, rX Rel16 is op=0x17 & rX & rY & Rel16 {
-	r0=0;
 	if (rY != rX) goto Rel16;
-	r0=0;
 }
 
 :andhi rX, rY, imm16 is op=0x18 & rX & rY & imm16 {
-	r0=0;
 	rX = rY & (imm16 << 16);
-	r0=0;
 }
 
 
 :cmpei rX, rY, simm16 is op=0x19 & rX & rY & simm16 {
-	r0=0;
 	rX = zext(rY:4 == sext(simm16:2));
-	r0=0;
 }
 
 :cmpgi rX, rY, simm16 is op=0x1A & rX & rY & simm16 {
-	r0=0;
 	rX = zext(rY:4 s> sext(simm16:2));
-	r0=0;
 }
 
 :cmpgei rX, rY, simm16 is op=0x1B & rX & rY & simm16 {
-	r0=0;
 	rX = zext(rY:4 s>= sext(simm16:2));
-	r0=0;
 }
 
 :cmpgeui rX, rY, imm16 is op=0x1C & rX & rY & imm16 {
-	r0=0;
 	rX = zext(rY:4 >= zext(imm16:2));
-	r0=0;
 }
 
 :cmpgui rX, rY, imm16 is op=0x1D & rX & rY & imm16 {
-	r0=0;
 	rX = zext(rY:4 > zext(imm16:2));
-	r0=0;
 }
 
 :orhi rX, rY, imm16 is op=0x1E & rX & rY & imm16 {
-	r0=0;
 	rX = rY | (imm16 << 16);
-	r0=0;
 }
 
 :mvhi rX, imm16 is op=0x1E & rX & rY & imm16 & reg0=0 {
-	r0=0;
 	rX = imm16 << 16;
-	r0=0;
 }
 
 :cmpnei rX, rY, simm16 is op=0x1F & rX & rY & simm16 {
-	r0=0;
 	rX = zext(rY:4 != sext(simm16:2));
-	r0=0;
 }
 
 :sru rX, rY, rZ is op=0x20 & rX & rY & rZ {
-	r0=0;
 	rX = rY >> rZ;
-	r0=0;
 }
 
 :nor rX, rY, rZ is op=0x21 & rX & rY & rZ {
-	r0=0;
 	rX = ~(rY | rZ);
-	r0=0;
 }
 
 :mul rX, rY, rZ is op=0x22 & rX & rY & rZ {
-	r0=0;
 	rX = (rY * rZ) & 0xFFFFFFFF;
-	r0=0;
 }
 
 :divu rX, rY, rZ is op=0x23 & rX & rY & rZ {
-	r0=0;
 	rX = rY / rZ;
-	r0=0;
 }
 
 :rcsr reg2, csr is op=0x24 & csr & reg2 {
-	r0=0;
 	local tmp_csr:4 = csr;
 	reg2 = csr_read(tmp_csr);
-	r0=0;
 }
 
 :sr rX, rY, rZ is op=0x25 & rX & rY & rZ {
-	r0=0;
 	rX = rY s>> rZ;
-	r0=0;
 }
 
 :xor rX, rY, rZ is op=0x26 & rX & rY & rZ {
-	r0=0;
 	rX = rY ^ rZ;
-	r0=0;
 }
 
 :div rX, rY, rZ is op=0x27 & rX & rY & rZ {
-	r0=0;
 	rX = rY s/ rZ;
-	r0=0;
 }
 
 :and rX, rY, rZ is op=0x28 & rX & rY & rZ {
-	r0=0;
 	rX = rY & rZ;
-	r0=0;
 }
 
 :xnor rX, rY, rZ is op=0x29 & rX & rY & rZ {
-	r0=0;
 	rX = ~(rY ^ rZ);
-	r0=0;
 }
 
 :not rX, rY is op=0x29 & rX & rY & rZ & reg1=0 {
-	r0=0;
 	rX = ~rY;
-	r0=0;
 }
 
 # 0x2A is reserved
 
 :raise imm26 is op=0x2B & imm26 {
-	r0=0;
 
 	local tmp:4 = imm26;
 	software_interrupt(tmp);
 
-	r0=0;
 }
 
 :sextb rX, rY is op=0x2C & rX & rY {
-	r0=0;
 	rX = (rY << 24) s>> 24;
-	r0=0;
 }
 
 # :add rX, rY, rZ is op=0x2D & rX & rY & rZ {
-# 	r0=0;
-# 	rX = rY + rZ;
-# 	r0=0;
-# }
+# # 	rX = rY + rZ;
+# # }
 
 # :add rX, rY, rZ is op=0x2D & rX & rY & rZ {
-# 	r0=0;
-# 	rX = rY + rZ;
-# 	r0=0;
-# }
+# # 	rX = rY + rZ;
+# # }
 
 :add rX, rY, rZ is op=0x2D & rX & rY & rZ {
-	r0=0;
 	rX = rY + rZ;
-	r0=0;
 }
 
 :or rX, rY, rZ is op=0x2E & rX & rY & rZ {
-	r0=0;
 	rX = rY | rZ;
-	r0=0;
 }
 
 :mov rX, rY is op=0x2E & rX & rY & rZ & reg1=0 {
-	r0=0;
 	rX = rY;
-	r0=0;
 }
 
 :sl rX, rY, rZ is op=0x2F & rX & rY & rZ {
-	r0=0;
 	rX = rY << rZ;
-	r0=0;
 }
 
 :b rX is op=0x30 & rX {
-	r0=0;
 	goto [rX];
 }
 
 :ret is op=0x30 & reg0=29 {
-	r0=0;
 	return [ra];
 }
 
 :modu rX, rY, rZ is op=0x31 & rX & rY & rZ {
-	r0=0;
 	rX = rY % rZ;
-	r0=0;
 }
 
 :sub rX, rY, rZ is op=0x32 & rX & rY & rZ {
-	r0=0;
 	rX = rY - rZ;
-	r0=0;
 }
 
 # 0x33 is reserved
 
 :wcsr csr, reg1 is op=0x34 & reg1 & csr {
-	r0=0;
 	local tmp_csr:4 = csr;
 	csr_write(tmp_csr, reg1);
-	r0=0;
 }
 
 :mod rX, rY, rZ is op=0x35 & rX & rY & rZ {
-	r0=0;
 	rX = rY s% rZ;
-	r0=0;
 }
 
 :call rX is op=0x36 & rX {
-	r0=0;
 	ra = inst_start + 4;
 	call [rX];
 }
 
 :sexth rX, rY is op=0x37 & rX & rY {
-	r0=0;
 	rX = (rY << 16) s>> 16;
-	r0=0;
 }
 
 :bi Rel26 is op=0x38 & Rel26 {
-	r0=0;
 	goto Rel26;
 }
 
 :cmpe rX, rY, rZ is op=0x39 & rX & rY & rZ {
-	r0=0;
 	rX = zext(rY == rZ);
-	r0=0;
 }
 
 :cmpg rX, rY, rZ is op=0x3A & rX & rY & rZ {
-	r0=0;
 	rX = zext(rY s> rZ);
-	r0=0;
 }
 
 :cmpge rX, rY, rZ is op=0x3B & rX & rY & rZ {
-	r0=0;
 	rX = zext(rY s>= rZ);
-	r0=0;
 }
 
 :cmpgeu rX, rY, rZ is op=0x3C & rX & rY & rZ {
-	r0=0;
 	rX = zext(rY >= rZ);
-	r0=0;
 }
 
 :cmpgu rX, rY, rZ is op=0x3D & rX & rY & rZ {
-	r0=0;
 	rX = zext(rY > rZ);
-	r0=0;
 }
 
 :calli Rel26 is op=0x3E & Rel26 {
-	r0=0;
 	ra = inst_start + 4;
 	call Rel26;
 }
 
 :cmpne rX, rY, rZ is op=0x3F & rX & rY & rZ {
-	r0=0;
 	rX = zext(rY != rZ);
-	r0=0;
 }

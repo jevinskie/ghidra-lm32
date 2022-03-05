@@ -1,0 +1,12 @@
+##VERSION: 2.0
+Module.manifest||GHIDRA||||END|
+data/languages/lm32_be.slaspec||GHIDRA||||END|
+data/languages/lm32.cspec||GHIDRA||||END|
+data/languages/lm32.ldefs||GHIDRA||||END|
+data/languages/lm32_le.slaspec||GHIDRA||||END|
+data/languages/lm32.opinion||GHIDRA||||END|
+data/languages/lm32.pspec||GHIDRA||||END|
+data/languages/lm32.sinc||GHIDRA||||END|
+LatticeMico32ProcessorReferenceManual39.pdf||GHIDRA||||END|
+LICENSE||GHIDRA||||END|
+README.md||GHIDRA||||END|
